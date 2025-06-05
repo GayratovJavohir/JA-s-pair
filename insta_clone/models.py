@@ -32,3 +32,11 @@ class Post(models.Model):
     location = models.CharField(max_length=30, blank=True)
     created_at = models.DateTimeField()
     updated_at = models.DateTimeField()
+
+    @property
+    def likes_count(self):
+        return self.likes.count()
+
+    @property
+    def comments_count(self):
+        return self.comments.count()
