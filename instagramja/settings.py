@@ -17,6 +17,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
 
+    'insta_clone'
     'posts',
     'users',
 ]
