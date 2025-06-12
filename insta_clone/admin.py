@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from insta_clone.models import UserModel, Post, Like, Comment, View
+from insta_clone.models import UserModel, Post, Like, Comment, View, Follow
 
 
 @admin.register(UserModel)
@@ -22,3 +22,5 @@ admin.site.register(Like)
 admin.site.register(Comment)
 
 admin.site.register(View)
+
+admin.site.register(Follow)

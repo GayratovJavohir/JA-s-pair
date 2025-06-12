@@ -1,3 +1,5 @@
+import datetime
+
 from django.contrib.auth.models import AbstractUser
 from django.db import models
 
@@ -38,7 +40,7 @@ class Post(models.Model):
         related_name='tags'
     )
     location = models.CharField(max_length=30, blank=True)
-    created_at = models.DateTimeField()
+    created_at = models.DateTimeField(default=datetime.datetime.now())
     updated_at = models.DateTimeField()
 
     @property
@@ -61,6 +63,7 @@ class Like(models.Model):
         on_delete=models.CASCADE,
         related_name='post_likes'
     )
+    created_at = models.DateTimeField(default=datetime.datetime.now())
 
     class Meta:
         unique_together = ('user', 'post',)
@@ -77,6 +80,8 @@ class Comment(models.Model):
         on_delete=models.CASCADE,
         related_name='post_comments'
     )
+    content = models.TextField(max_length=100)
+    created_at = models.DateTimeField(default=datetime.datetime.now())
 
     class Meta:
         unique_together = ('user', 'post',)
@@ -96,3 +101,15 @@ class View(models.Model):
 
     class Meta:
         unique_together = ('user', 'post',)
+
+
+class Follow(models.Model):
+    follower = models.ManyToManyField(
+        UserModel,
+        related_name='follower'
+    )
+    followee = models.ManyToManyField(
+        UserModel,
+        related_name='followee'
+    )
+    created_at = models.DateTimeField(default=datetime.datetime.now())
