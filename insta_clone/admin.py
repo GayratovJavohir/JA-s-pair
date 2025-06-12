@@ -1,17 +1,24 @@
 from django.contrib import admin
 
-from insta_clone.models import Profile, Post
+from insta_clone.models import UserModel, Post, Like, Comment, View
 
 
-@admin.register(Profile)
-class ProfileAdmin(admin.ModelAdmin):
-    list_display = ['user']
-    search_fields = ['user']
-    list_filter = ['user']
+@admin.register(UserModel)
+class UserModelAdmin(admin.ModelAdmin):
+    list_display = ['username', 'first_name', 'last_name']
+    search_fields = ['username']
+    list_filter = ['username']
 
 
 @admin.register(Post)
 class PostAdmin(admin.ModelAdmin):
-    list_display = ['user', 'location', 'created_at']
-    search_fields = ['user', 'created_at']
-    list_filter = ['user', 'created_at', 'updated_at']
+    list_display = ['location', 'created_at']
+    search_fields = ['tag', 'location', 'created_at']
+    list_filter = ['tag', 'created_at', 'updated_at']
+
+
+admin.site.register(Like)
+
+admin.site.register(Comment)
+
+admin.site.register(View)

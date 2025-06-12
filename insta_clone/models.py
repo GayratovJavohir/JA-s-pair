@@ -1,14 +1,13 @@
+from django.contrib.auth.models import AbstractUser
 from django.db import models
 
-from django.contrib.auth.models import User
 
-
-class Profile(models.Model):
-    user = models.OneToOneField(User, on_delete=models.CASCADE)
-    bio = models.CharField(max_length=100, blank=False)
-    avatar = models.ImageField(null=False)
+class UserModel(AbstractUser):
+    email = models.EmailField()
+    bio = models.TextField()
     followers = models.ManyToManyField('self', symmetrical=False, blank=True)
-    website = models.URLField(blank=True)
+    website = models.URLField()
+    profile_picture = models.ImageField(upload_to='avatars/')
 
     @property
     def followers_count(self):
@@ -19,7 +18,7 @@ class Profile(models.Model):
         return self.following.count()
 
     def __str__(self):
-        return f'{self.user}'
+        return f'{self.username}'
 
     class Meta:
         verbose_name = 'User'
@@ -27,8 +26,17 @@ class Profile(models.Model):
 
 
 class Post(models.Model):
-    user = models.ForeignKey(User, related_name='posts', on_delete=models.CASCADE)
-    image = models.ImageField()
+    user = models.ForeignKey(
+        UserModel,
+        on_delete=models.CASCADE,
+        related_name='posts'
+    )
+    caption = models.TextField()
+    image = models.ImageField(upload_to='post_images/')
+    tag = models.ManyToManyField(
+        UserModel,
+        related_name='tags'
+    )
     location = models.CharField(max_length=30, blank=True)
     created_at = models.DateTimeField()
     updated_at = models.DateTimeField()
@@ -40,3 +48,51 @@ class Post(models.Model):
     @property
     def comments_count(self):
         return self.comments.count()
+
+
+class Like(models.Model):
+    user = models.ForeignKey(
+        UserModel,
+        on_delete=models.CASCADE,
+        related_name='user_likes'
+    )
+    post = models.ForeignKey(
+        Post,
+        on_delete=models.CASCADE,
+        related_name='post_likes'
+    )
+
+    class Meta:
+        unique_together = ('user', 'post',)
+
+
+class Comment(models.Model):
+    user = models.ForeignKey(
+        UserModel,
+        on_delete=models.CASCADE,
+        related_name='user_comments'
+    )
+    post = models.ForeignKey(
+        Post,
+        on_delete=models.CASCADE,
+        related_name='post_comments'
+    )
+
+    class Meta:
+        unique_together = ('user', 'post',)
+
+
+class View(models.Model):
+    user = models.ForeignKey(
+        UserModel,
+        on_delete=models.CASCADE,
+        related_name='user_views'
+    )
+    post = models.ForeignKey(
+        Post,
+        on_delete=models.CASCADE,
+        related_name='post_views'
+    )
+
+    class Meta:
+        unique_together = ('user', 'post',)
