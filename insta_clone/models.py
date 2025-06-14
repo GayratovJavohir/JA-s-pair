@@ -6,9 +6,9 @@ from django.db import models
 
 class UserModel(AbstractUser):
     email = models.EmailField()
-    bio = models.TextField()
+    bio = models.TextField(max_length=200, null=True, blank=True)
     followers = models.ManyToManyField('self', symmetrical=False, blank=True)
-    website = models.URLField()
+    website = models.URLField(max_length=200, null=True, blank=True)
     profile_picture = models.ImageField(upload_to='avatars/')
 
     @property
@@ -45,11 +45,11 @@ class Post(models.Model):
 
     @property
     def likes_count(self):
-        return self.likes.count()
+        return self.post_likes.count()
 
     @property
     def comments_count(self):
-        return self.comments.count()
+        return self.post_comments.count()
 
 
 class Like(models.Model):
