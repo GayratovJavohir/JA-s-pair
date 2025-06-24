@@ -1,0 +1,15 @@
+<!-- insta_clone/templates/index.html -->
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Register/Login</title>
+</head>
+<body>
+    <h1>Form</h1>
+    <form method="post">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit">Submit</button>
+    </form>
+</body>
+</html>

@@ -1,12 +1,13 @@
 from django.contrib.auth import login, authenticate
+from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, redirect
 
-from insta_clone.forms import RegistrationForm, LoginForm
+from insta_clone.forms import RegistrationForm, LoginForm, UserUpdateForm
 
 
 def registration_view(request):
     if request.method == 'POST':
-        form = RegistrationForm(request.data)
+        form = RegistrationForm(request.POST)
 
         if form.is_valid():
             user = form.save()
@@ -37,3 +38,19 @@ def login_view(request):
         form = LoginForm(data=request.POST)
 
     return render(request, 'index.html', {"form": form})
+
+
+@login_required
+def profile_view(request):
+    if request.method == "POST":
+        form = UserUpdateForm(request.POST, request.FILES, instance=request.user)
+
+        if form.is_valid():
+            form.save()
+            return redirect(":profile")
+
+    else:
+        form = UserUpdateForm(instance=request.user)
+
+    return render(request, 'index.html', {"user": request.user, "form": form})
+

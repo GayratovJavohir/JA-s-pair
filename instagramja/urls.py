@@ -6,7 +6,8 @@ from instagramja import settings
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('', include('insta_clone.urls', namespace='insta_clone'))
+    path('insta_clone/', include('insta_clone.urls', namespace='insta_clone')),
+
 ]
 
 
