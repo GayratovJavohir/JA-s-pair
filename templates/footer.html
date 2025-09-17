@@ -1,0 +1,244 @@
+<!-- Right Sidebar -->
+<aside class="right-sidebar">
+    <div class="user-profile">
+        <div class="user-avatar">
+            <a href="{% url 'profile' %}" class="">
+                {% if user.avatar %}
+                <img src="{{ user.avatar.url }}" alt="{{ user.username }}">
+                {% else %}
+                <div class=""><i class="fas fa-user"></i></div>
+                {% endif %}
+            </a>
+        </div>
+        <div class="user-info">
+            <h4>{{ user.username }}</h4>
+            <p>{{ user.first_name }} {{ user.last_name }}</p>
+        </div>
+        <button class="switch-btn">Switch</button>
+    </div>
+
+    <div class="suggestions">
+        <div class="suggestions-header">
+            <h3>Suggested for you</h3>
+            <span class="see-all">See All</span>
+        </div>
+
+        <div class="suggestion-item">
+            <div class="suggestion-avatar">
+                <img src="/placeholder.svg?height=44&width=44" alt="namaza__">
+            </div>
+            <div class="suggestion-info">
+                <div class="suggestion-username">namaza__</div>
+                <div class="suggestion-reason">Suggested for you</div>
+            </div>
+            <button class="follow-btn">Follow</button>
+        </div>
+
+        <div class="suggestion-item">
+            <div class="suggestion-avatar">
+                <img src="/placeholder.svg?height=44&width=44" alt="717.stories_">
+            </div>
+            <div class="suggestion-info">
+                <div class="suggestion-username">717.stories_</div>
+                <div class="suggestion-reason">Suggested for you</div>
+            </div>
+            <button class="follow-btn">Follow</button>
+        </div>
+
+        <div class="suggestion-item">
+            <div class="suggestion-avatar">
+                <img src="/placeholder.svg?height=44&width=44" alt="xab1bullayev_07_">
+            </div>
+            <div class="suggestion-info">
+                <div class="suggestion-username">xab1bullayev_07_</div>
+                <div class="suggestion-reason">Suggested for you</div>
+            </div>
+            <button class="follow-btn">Follow</button>
+        </div>
+
+        <div class="suggestion-item">
+            <div class="suggestion-avatar">
+                <img src="/placeholder.svg?height=44&width=44" alt="zkhmss_">
+            </div>
+            <div class="suggestion-info">
+                <div class="suggestion-username">zkhmss_</div>
+                <div class="suggestion-reason">Followed by sa.farova.1 and 1 ...</div>
+            </div>
+            <button class="follow-btn">Follow</button>
+        </div>
+
+        <div class="suggestion-item">
+            <div class="suggestion-avatar">
+                <img src="/placeholder.svg?height=44&width=44" alt="toirjonovv.a">
+            </div>
+            <div class="suggestion-info">
+                <div class="suggestion-username">toirjonovv.a</div>
+                <div class="suggestion-reason">Followed by 1_zokirvicc</div>
+            </div>
+            <button class="follow-btn">Follow</button>
+        </div>
+    </div>
+
+    <div class="footer">
+        <div class="footer-links">
+            <a href="#">About</a> •
+            <a href="#">Help</a> •
+            <a href="#">Press</a> •
+            <a href="#">API</a> •
+            <a href="#">Jobs</a> •
+            <a href="#">Privacy</a> •
+            <a href="#">Terms</a> •
+            <a href="#">Locations</a> •
+            <a href="#">Language</a> •
+            <a href="#">Meta Verified</a>
+        </div>
+        <div class="copyright">© 2025 INSTAGRAM FROM META</div>
+    </div>
+</aside>
+
+
+<style>
+    .right-sidebar {
+           width: 320px;
+           padding: 20px;
+           right: 0;
+           top: 0;
+           height: 100vh;
+           overflow-y: auto;
+           margin-right: 150px;
+       }
+
+       .user-profile {
+           display: flex;
+           align-items: center;
+           margin-bottom: 24px;
+       }
+
+       .user-avatar {
+           width: 56px;
+           height: 56px;
+           border-radius: 50%;
+           margin-right: 12px;
+           background-color: #262626;
+       }
+
+       .user-avatar img {
+           width: 100%;
+           height: 100%;
+           border-radius: 50%;
+           object-fit: cover;
+       }
+
+       .user-info h4 {
+           font-size: 14px;
+           font-weight: 600;
+           margin-bottom: 2px;
+       }
+
+       .user-info p {
+           font-size: 14px;
+           color: #a8a8a8;
+       }
+
+       .switch-btn {
+           color: #0095f6;
+           font-size: 12px;
+           font-weight: 600;
+           cursor: pointer;
+           margin-left: auto;
+       }
+
+       .suggestions {
+           margin-bottom: 40px;
+       }
+
+       .suggestions-header {
+           display: flex;
+           justify-content: space-between;
+           align-items: center;
+           margin-bottom: 16px;
+       }
+
+       .suggestions-header h3 {
+           font-size: 14px;
+           color: #a8a8a8;
+           font-weight: 600;
+       }
+
+       .see-all {
+           color: #fff;
+           font-size: 12px;
+           font-weight: 600;
+           cursor: pointer;
+       }
+
+       .suggestion-item {
+           display: flex;
+           align-items: center;
+           margin-bottom: 16px;
+       }
+
+       .suggestion-avatar {
+           width: 44px;
+           height: 44px;
+           border-radius: 50%;
+           margin-right: 12px;
+           background-color: #262626;
+       }
+
+       .suggestion-avatar img {
+           width: 100%;
+           height: 100%;
+           border-radius: 50%;
+           object-fit: cover;
+       }
+
+       .suggestion-info {
+           flex: 1;
+       }
+
+       .suggestion-username {
+           font-size: 14px;
+           font-weight: 600;
+           margin-bottom: 2px;
+       }
+
+       .suggestion-reason {
+           font-size: 12px;
+           color: #a8a8a8;
+       }
+
+       .follow-btn {
+           color: #0095f6;
+           font-size: 12px;
+           font-weight: 600;
+           cursor: pointer;
+       }
+
+       .footer {
+           margin-top: auto;
+           padding-top: 20px;
+       }
+
+       .footer-links {
+           font-size: 11px;
+           color: #737373;
+           line-height: 1.5;
+           margin-bottom: 16px;
+       }
+
+       .footer-links a {
+           color: #737373;
+           text-decoration: none;
+           margin-right: 8px;
+       }
+
+       .footer-links a:hover {
+           text-decoration: underline;
+       }
+
+       .copyright {
+           font-size: 11px;
+           color: #737373;
+       }
+</style>

@@ -1,0 +1,54 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Instagram{% endblock %}</title>
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <link href="https://fonts.googleapis.com/css2?family=Billabong&display=swap" rel="stylesheet">
+    <link rel="icon" type="image/png"
+          href="https://upload.wikimedia.org/wikipedia/commons/thumb/9/95/Instagram_logo_2022.svg/2048px-Instagram_logo_2022.svg.png">
+    <link
+            rel="stylesheet"
+            href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
+    />
+</head>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+<link href="https://fonts.googleapis.com/css2?family=Parisienne&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+<style>
+    {% block extra_css %}
+     .container {
+            display: flex;
+            min-height: 100vh;
+       }
+    {% endblock %}
+</style>
+<body class="{% block body_class %}{% endblock %}">
+{% csrf_token %}
+<div class="container">
+    <!-- Include Left Sidebar Navigation -->
+    {% include 'header.html' %}
+
+    <!-- Main content area -->
+    <main class="main-content">
+        {% block content %}
+        <!-- Default content goes here -->
+        {% endblock %}
+    </main>
+
+    <!-- Include Right Sidebar - Only show on home page -->
+    {% if '/profile/' not in request.path and '/explore/' not in request.path and '/create/' not in request.path and '/another_profile/' not in request.path and '/reels/' not in request.path and '/followings/' not in request.path and '/followers/' not in reqeust.path %}
+    {% include 'footer.html' %}
+    {% endif %}
+</div>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    {% block scripts %}
+    <!-- Page specific scripts go here -->
+    {% endblock %}
+</body>
+
+</html>

@@ -1,0 +1,201 @@
+{% extends "base.html" %}
+
+{% load static %}
+
+{% block title %}Search • Instagram{% endblock %}
+
+{% block search_active %}active{% endblock %}
+
+{% block content %}
+<div class="suggested-container">
+    <div class="suggested-header">
+        <h3>Followers</h3>
+        <a class="suggested-link" href="{% url 'followings' pk=user.pk %}">Following</a>
+    </div>
+
+    <div class="suggested-users-list">
+        {% for user in followers %}
+        <div class="suggested-user-item">
+            <div class="suggested-user-info">
+                {% if user.follower.avatar %}
+                <img class="suggested-avatar" src="{{ user.follower.avatar.url }}">
+                {% else %}
+                <div class="suggested-default-avatar suggested-avatar">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+                        <circle cx="12" cy="7" r="4"/>
+                    </svg>
+                </div>
+                {% endif %}
+
+                <div class="suggested-user-details">
+                    <a href="{% url 'profile-another' pk=user.follower.pk %}" style="text-decoration:none">
+                        <h3 class="suggested-username">{{ user.follower.username }}</h3>
+                    </a>
+                    <p class="suggested-fullname">{{ user.follower.first_name }} {{ user.follower.last_name }}</p>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+
+<style>
+/* Container */
+.suggested-container {
+    width: 100%;
+    max-width: 600px;
+    padding: 20px;
+    background-color: #000;
+    color: #fff;
+
+    position: fixed; /* absolute emas */
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+
+    z-index: 9999; /* hamma narsadan ustida */
+    border-radius: 12px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.4);
+}
+
+/* Section Header */
+.suggested-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+}
+
+.suggested-header h3 {
+    font-size: 18px;
+    font-weight: 600;
+    margin: 0;
+    color: #fff;
+}
+
+.suggested-link {
+    text-decoration: none;
+    color: #0095f6;
+    font-size: 14px;
+    font-weight: 600;
+    transition: color 0.2s;
+}
+.suggested-link:hover {
+    color: #1877f2;
+}
+
+/* User List */
+.suggested-users-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    max-height: 500px;
+    overflow-y: auto;
+    padding-right: 4px;
+}
+
+/* User Item */
+.suggested-user-item {
+    background: #111;
+    border-radius: 8px;
+    padding: 10px 14px;
+    transition: background 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+.suggested-user-item:hover {
+    background: #1a1a1a;
+}
+
+/* User Info */
+.suggested-user-info {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+/* Avatar */
+.suggested-avatar {
+    height: 40px;
+    width: 40px;
+    border-radius: 50%;
+    object-fit: cover;
+    flex-shrink: 0;
+}
+.suggested-default-avatar {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #262626;
+}
+
+/* User Details */
+.suggested-user-details {
+    flex: 1;
+}
+.suggested-username {
+    font-size: 15px;
+    font-weight: 600;
+    margin: 0;
+    color: #fff;
+}
+.suggested-fullname {
+    font-size: 13px;
+    color: #8e8e8e;
+    margin: 2px 0 0 0;
+}
+
+/* Follow Button */
+.suggested-follow-btn {
+    background: #0095f6;
+    color: #fff;
+    font-size: 14px;
+    font-weight: 600;
+    border: none;
+    border-radius: 6px;
+    padding: 6px 12px;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+.suggested-follow-btn:hover {
+    background: #1877f2;
+}
+
+/* Scrollbar */
+.suggested-users-list::-webkit-scrollbar {
+    width: 6px;
+}
+.suggested-users-list::-webkit-scrollbar-thumb {
+    background: #333;
+    border-radius: 6px;
+}
+.suggested-users-list::-webkit-scrollbar-thumb:hover {
+    background: #444;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .suggested-container {
+        padding: 10px;
+    }
+    .suggested-username {
+        font-size: 14px;
+    }
+    .suggested-fullname {
+        font-size: 12px;
+    }
+    .suggested-follow-btn {
+        font-size: 13px;
+        padding: 5px 10px;
+    }
+}
+
+
+
+
+</style>
+
+{% endblock %}

@@ -8,7 +8,6 @@ DEBUG = True
 
 ALLOWED_HOSTS = []
 
-
 INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
@@ -31,7 +30,7 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
-ROOT_URLCONF = 'instagramja.urls'
+ROOT_URLCONF = 'instagram_clone.urls'
 
 TEMPLATES = [
     {
@@ -49,8 +48,7 @@ TEMPLATES = [
     },
 ]
 
-WSGI_APPLICATION = 'instagramja.wsgi.application'
-
+WSGI_APPLICATION = 'instagram_clone.wsgi.application'
 
 DATABASES = {
     'default': {
@@ -58,7 +56,6 @@ DATABASES = {
         'NAME': BASE_DIR / 'db.sqlite3',
     }
 }
-
 
 AUTH_PASSWORD_VALIDATORS = [
     {
@@ -91,5 +88,8 @@ STATICFILES_DIRS = BASE_DIR / 'assets',
 MEDIA_URL = 'media/'
 MEDIA_ROOT = BASE_DIR / 'media'
 
-
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+AUTH_USER_MODEL = 'users.UserModel'
+
+LOGIN_URL = '/users/login/'

@@ -1,0 +1,174 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Search • Instagram{% endblock %}
+{% block search_active %}active{% endblock %}
+
+{% block content %}
+<div class="search-container">
+    <div class="suggested-users" id="suggested-users">
+        <div class="section-header">
+            <h3>Followings</h3>
+            <a class="followers-link" href="{% url 'followers' pk=user.pk %}">Followers</a>
+        </div>
+
+        <div class="users-list">
+            {% for user in followings %}
+            <div class="user-profile-section">
+                <div class="user-info">
+                    {% if user.following.avatar %}
+                        <img class="avatar" src="{{ user.following.avatar.url }}" alt="avatar">
+                    {% else %}
+                        <div class="avatar default-avatar">
+                            <svg class="icon"
+                                 viewBox="0 0 24 24"
+                                 fill="none"
+                                 stroke="currentColor"
+                                 stroke-width="2">
+                                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+                                <circle cx="12" cy="7" r="4"/>
+                            </svg>
+                        </div>
+                    {% endif %}
+                    <div class="user-details">
+                        <a class="profile-link" href="{% url 'profile-another' pk=user.following.pk %}">
+                            <h3 class="username">{{ user.following.username }}</h3>
+                            <p class="fullname">{{ user.following.first_name }} {{ user.following.last_name }}</p>
+                        </a>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+
+<style>
+/* Container */
+.search-container {
+    width: 100%;
+    max-width: 600px;
+    padding: 20px;
+    background-color: #000;
+    color: #fff;
+
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+
+    z-index: 20; /* header ustida ko‘rinsin */
+    border-radius: 12px;
+}
+
+/* Section Header */
+.section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+}
+
+.section-header h3 {
+    font-size: 18px;
+    font-weight: 600;
+    margin: 0;
+}
+
+.followers-link {
+    text-decoration: none;
+    color: #0095f6;
+    font-size: 14px;
+    font-weight: 600;
+}
+.followers-link:hover {
+    color: #1877f2;
+}
+
+/* User List */
+.users-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    max-height: 500px;
+    overflow-y: auto;
+}
+
+/* User Item */
+.user-profile-section {
+    background: #111;
+    border-radius: 8px;
+    padding: 10px 14px;
+    transition: background 0.2s;
+}
+.user-profile-section:hover {
+    background: #1a1a1a;
+}
+
+.user-info {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+/* Avatar */
+.avatar {
+    height: 40px;
+    width: 40px;
+    border-radius: 50%;
+    object-fit: cover;
+    flex-shrink: 0;
+}
+.default-avatar {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #262626;
+}
+
+/* User Details */
+.user-details {
+    flex: 1;
+}
+.profile-link {
+    text-decoration: none;
+    color: inherit;
+}
+.username {
+    font-size: 15px;
+    font-weight: 600;
+    margin: 0;
+    color: #fff;
+}
+.fullname {
+    font-size: 13px;
+    color: #8e8e8e;
+    margin: 2px 0 0 0;
+}
+
+/* Scrollbar */
+.users-list::-webkit-scrollbar {
+    width: 6px;
+}
+.users-list::-webkit-scrollbar-thumb {
+    background: #333;
+    border-radius: 6px;
+}
+.users-list::-webkit-scrollbar-thumb:hover {
+    background: #444;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .search-container {
+        padding: 10px;
+    }
+    .username {
+        font-size: 14px;
+    }
+    .fullname {
+        font-size: 12px;
+    }
+}
+</style>
+{% endblock %}

@@ -1,0 +1,551 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Instagram{% endblock %}
+{% block home_active %}active{% endblock %}
+
+{% block extra_css %}
+.container {
+    display: flex;
+    min-height: 100vh;
+}
+
+/* Main Content */
+.main-content {
+    flex: 1;
+    display: flex;
+    margin-left: 150px; /* Adjust as per your sidebar width */
+}
+
+.feed-container {
+    flex: 1;
+    max-width: 630px;
+    margin: 0 auto;
+    padding: 0 20px;
+}
+
+/* Stories */
+.stories-container {
+    padding: 20px 0;
+    border-bottom: 1px solid #262626;
+    margin-bottom: 20px;
+}
+
+.stories {
+    display: flex;
+    gap: 16px;
+    overflow-x: auto;
+    padding-bottom: 10px;
+    /* Hide scrollbar for a cleaner look */
+    -ms-overflow-style: none;  /* IE and Edge */
+    scrollbar-width: none;  /* Firefox */
+}
+.stories::-webkit-scrollbar {
+    display: none; /* Chrome, Safari, Opera */
+}
+
+
+.story {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-width: 66px;
+}
+
+.story-avatar {
+    width: 66px;
+    height: 66px;
+    border-radius: 50%;
+    background: linear-gradient(45deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%);
+    padding: 2px;
+    margin-bottom: 8px;
+    cursor: pointer;
+    transition: transform 0.2s ease;
+}
+
+.story-avatar:hover {
+    transform: scale(1.05);
+}
+
+.story-avatar.viewed {
+    background: #333; /* Grey background for viewed stories */
+}
+
+.story-avatar img {
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    border: 2px solid #000;
+    object-fit: cover;
+}
+
+.story-username {
+    font-size: 12px;
+    color: #a8a8a8;
+    text-align: center;
+    max-width: 66px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.story-username a {
+    text-decoration: none;
+    font-size: 14px;
+    font-weight: 500;
+    color: #fff;
+}
+
+/* Suggested Posts (Styling remains the same) */
+.suggested-posts h3 { font-size: 16px; color: #a8a8a8; margin-bottom: 20px; font-weight: 600; }
+.post { background-color: #000; border: 1px solid #262626; border-radius: 8px; margin-bottom: 20px; }
+.post-header { display: flex; align-items: center; padding: 16px; justify-content: space-between; }
+.post-user { display: flex; align-items: center; }
+.post-avatar { width: 32px; height: 32px; border-radius: 50%; margin-right: 12px; background: linear-gradient(45deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%); padding: 2px; }
+.post-avatar img { width: 100%; height: 100%; border-radius: 50%; border: 1px solid #000; object-fit: cover; }
+.post-info { display: flex; flex-direction: column; }
+.post-username { font-weight: 600; font-size: 14px; }
+.post-time { color: #a8a8a8; font-size: 12px; }
+.post-menu { color: #a8a8a8; cursor: pointer; }
+.post-content { position: relative; width: 100%; overflow: hidden; }
+.post-image { width: 100%; display: flex; align-items: center; justify-content: center; background-color: #000; overflow: hidden; }
+.post-image img { width: 100%; height: auto; object-fit: cover; }
+
+/* === Story Modal (Improved CSS) === */
+.modal {
+    display: none; /* Changed from flex to none */
+    justify-content: center;
+    align-items: center;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.9);
+    z-index: 9999;
+}
+
+.modal.visible {
+    display: flex;
+}
+
+.modal-content {
+    position: relative;
+    width: 95vw;
+    max-width: 420px;
+    height: 90vh;
+    background: #1a1a1a;
+    border-radius: 12px;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    box-shadow: 0 0 30px rgba(0, 0, 0, 0.5);
+    transform: scale(0.95);
+    opacity: 0;
+    transition: transform 0.3s ease, opacity 0.3s ease;
+}
+
+.modal.visible .modal-content {
+    transform: scale(1);
+    opacity: 1;
+}
+
+/* Progress Bars */
+.story-progress-bars {
+    position: absolute;
+    top: 8px;
+    left: 8px;
+    right: 8px;
+    display: flex;
+    gap: 4px;
+    z-index: 10;
+}
+
+.progress-bar {
+    flex: 1;
+    height: 2.5px;
+    background-color: rgba(255, 255, 255, 0.3);
+    border-radius: 2px;
+    overflow: hidden;
+}
+
+.progress-fill {
+    height: 100%;
+    width: 0;
+    background-color: #fff;
+    border-radius: 2px;
+}
+.progress-fill.active {
+    animation: fillProgress 5s linear forwards;
+}
+
+@keyframes fillProgress {
+    from { width: 0%; }
+    to { width: 100%; }
+}
+
+/* Header */
+.story-header {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px 15px;
+    color: white;
+    background: linear-gradient(to bottom, rgba(0,0,0,0.6), rgba(0,0,0,0));
+    z-index: 5;
+}
+
+.story-user { display: flex; align-items: center; gap: 10px; }
+.story-user img { width: 36px; height: 36px; border-radius: 50%; object-fit: cover; }
+.story-close { background: none; border: none; font-size: 28px; color: white; cursor: pointer; transition: transform 0.2s; }
+.story-close:hover { transform: scale(1.1); }
+
+/* Content & Navigation */
+.story-view {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    overflow: hidden;
+    position: relative;
+}
+
+.story-view img {
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain;
+    border-radius: 8px;
+}
+
+.story-nav {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    z-index: 20;
+}
+
+.story-nav-prev, .story-nav-next {
+    flex: 1;
+    height: 100%;
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent; /* For mobile */
+}
+
+/* Footer */
+.story-footer {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    display: flex;
+    align-items: center;
+    padding: 15px;
+    background: linear-gradient(to top, rgba(0,0,0,0.6), rgba(0,0,0,0));
+    gap: 10px;
+    z-index: 5;
+}
+
+.story-reply { flex: 1; padding: 10px 15px; border-radius: 30px; border: 1px solid #555; outline: none; background: transparent; color: white; }
+.story-actions { display: flex; gap: 15px; }
+.story-actions button { background: none; border: none; color: white; font-size: 22px; cursor: pointer; transition: transform 0.2s; }
+.story-actions button:hover { transform: scale(1.1); }
+
+{% endblock %}
+
+{% block content %}
+<main class="main-content">
+    <div class="feed-container">
+        <div class="stories-container">
+            <div class="stories">
+                {% for user, user_histories in grouped_histories %}
+                <div class="story" data-user-index="{{ forloop.counter0 }}">
+                    <div class="story-avatar">
+                        {% if user.avatar %}
+                        <img src="{{ user.avatar.url }}" alt="{{ user.username }}">
+                        {% else %}
+                        <img src="{% static 'images/default.png' %}" alt="{{ user.username }}">
+                        {% endif %}
+                    </div>
+                    <span class="story-username">
+                        <a href="{% url 'profile-another' pk=user.pk %}">
+                            {{ user.username }}
+                        </a>
+                    </span>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <div class="suggested-posts">
+            <h3>Suggested posts</h3>
+            {% if posts %}
+            {% for post in posts %}
+            <article class="post">
+                <div class="post-header">
+                    <div class="post-user">
+                        <div class="post-avatar">
+                            <a href="{% url 'profile-another' pk=post.userID.pk %}">
+                                {% if post.userID.avatar %}
+                                <img src="{{ post.userID.avatar.url }}" alt="{{ post.userID.username }}">
+                                {% else %}
+                                <img src="{% static 'images/default.png' %}" alt="{{ post.userID.username }}">
+                                {% endif %}
+                            </a>
+                        </div>
+                        <div class="post-info">
+                            <span class="post-username">{{ post.userID.username }}</span>
+                            <span class="post-time">{{ post.since_created }}</span>
+                        </div>
+                    </div>
+                    <div class="post-menu"><i class="fas fa-ellipsis-h"></i></div>
+                </div>
+                <div class="post-content">
+                    <div class="post-image">
+                        {% if post.contentUrl %}
+                        <img src="{{ post.contentUrl.url }}" alt="Post" loading="lazy">
+                        {% endif %}
+                    </div>
+                </div>
+            </article>
+            {% endfor %}
+            {% else %}
+            <div><h1>Nothing for you</h1></div>
+            {% endif %}
+        </div>
+    </div>
+</main>
+
+<div id="storyModal" class="modal">
+    <div class="modal-content">
+        <div class="story-progress-bars"></div>
+
+        <div class="story-header">
+            <div class="story-user">
+                <img id="modalAvatar" src="" alt="User">
+                <div>
+                    <span id="modalUsername"></span>
+                    <span id="modalTime" style="font-size:12px;color:#ccc;"></span>
+                </div>
+            </div>
+            <button class="story-close">&times;</button>
+        </div>
+
+        <div class="story-view">
+            <img id="storyImage" src="" alt="Story">
+            <div class="story-nav">
+                <div class="story-nav-prev"></div>
+                <div class="story-nav-next"></div>
+            </div>
+        </div>
+
+        <div class="story-footer">
+            <input type="text" placeholder="Reply..." class="story-reply">
+            <div class="story-actions">
+                <button class="like-btn"><i class="far fa-heart"></i></button>
+                <button class="msg-btn"><i class="far fa-paper-plane"></i></button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script id="stories-data" type="application/json">
+[
+    {% for user, user_histories in grouped_histories %}
+    {
+        "username": "{{ user.username }}",
+        "avatar": "{% if user.avatar %}{{ user.avatar.url }}{% else %}{% static 'images/default.png' %}{% endif %}",
+        "stories": [
+            {% for history in user_histories %}
+            {
+                "url": "{{ history.contentUrl.url }}",
+                "time": "{{ history.since_created }}"
+            }{% if not forloop.last %},{% endif %}
+            {% endfor %}
+        ]
+    }{% if not forloop.last %},{% endif %}
+    {% endfor %}
+]
+</script>
+{% endblock %}
+
+
+{% block scripts %}
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+    // DOM Elements
+    const modal = document.getElementById("storyModal");
+    const modalContent = modal.querySelector(".modal-content");
+    const modalAvatar = document.getElementById("modalAvatar");
+    const modalUsername = document.getElementById("modalUsername");
+    const modalTime = document.getElementById("modalTime");
+    const storyImage = document.getElementById("storyImage");
+    const progressBarsContainer = modal.querySelector(".story-progress-bars");
+    const storyElements = document.querySelectorAll(".story");
+
+    // Controls
+    const closeBtn = modal.querySelector(".story-close");
+    const nextNav = modal.querySelector(".story-nav-next");
+    const prevNav = modal.querySelector(".story-nav-prev");
+
+    // Data and State
+    const allStoriesData = JSON.parse(document.getElementById("stories-data").textContent);
+    let currentUserIndex = 0;
+    let currentStoryIndex = 0;
+    let progressFillElement = null;
+
+    // --- Functions ---
+
+    function openModal(userIndex) {
+        currentUserIndex = userIndex;
+        currentStoryIndex = 0;
+        modal.classList.add("visible");
+        document.body.style.overflow = 'hidden';
+        showCurrentStory();
+        // Mark as viewed
+        storyElements[userIndex].querySelector('.story-avatar').classList.add('viewed');
+    }
+
+    function closeModal() {
+        // Pause animation to prevent it from finishing in the background
+        if (progressFillElement) {
+            progressFillElement.style.animationPlayState = 'paused';
+        }
+        modal.classList.remove("visible");
+        document.body.style.overflow = '';
+    }
+
+    function showCurrentStory() {
+        if (currentUserIndex >= allStoriesData.length) {
+            closeModal();
+            return;
+        }
+
+        const user = allStoriesData[currentUserIndex];
+        const story = user.stories[currentStoryIndex];
+
+        // Update UI
+        modalAvatar.src = user.avatar;
+        modalUsername.textContent = user.username;
+        storyImage.src = story.url;
+        modalTime.textContent = story.time;
+
+        // Generate Progress Bars
+        progressBarsContainer.innerHTML = '';
+        user.stories.forEach((s, index) => {
+            const bar = document.createElement('div');
+            bar.className = 'progress-bar';
+            const fill = document.createElement('div');
+            fill.className = 'progress-fill';
+
+            if (index < currentStoryIndex) {
+                fill.style.width = '100%';
+            } else if (index === currentStoryIndex) {
+                progressFillElement = fill; // Track the current fill element
+            }
+
+            bar.appendChild(fill);
+            progressBarsContainer.appendChild(bar);
+        });
+
+        // Start animation for the current bar
+        setTimeout(() => {
+            if (progressFillElement) {
+                progressFillElement.classList.add('active');
+                // Listen for when the story finishes
+                progressFillElement.addEventListener('animationend', navigateToNext, { once: true });
+            }
+        }, 10); // Small delay to ensure CSS transition is applied
+    }
+
+    function navigateToNext() {
+        const currentUser = allStoriesData[currentUserIndex];
+        // If there are more stories for the current user
+        if (currentStoryIndex < currentUser.stories.length - 1) {
+            currentStoryIndex++;
+            showCurrentStory();
+        }
+        // If it's the last story, move to the next user
+        else if (currentUserIndex < allStoriesData.length - 1) {
+            currentUserIndex++;
+            currentStoryIndex = 0;
+            // Mark next user as viewed
+            storyElements[currentUserIndex].querySelector('.story-avatar').classList.add('viewed');
+            showCurrentStory();
+        }
+        // If it's the last story of the last user
+        else {
+            closeModal();
+        }
+    }
+
+    function navigateToPrev() {
+        // If we are not on the first story of the current user
+        if (currentStoryIndex > 0) {
+            currentStoryIndex--;
+            showCurrentStory();
+        }
+        // If it's the first story, move to the previous user
+        else if (currentUserIndex > 0) {
+            currentUserIndex--;
+            // Go to the *last* story of the previous user
+            currentStoryIndex = allStoriesData[currentUserIndex].stories.length - 1;
+            showCurrentStory();
+        }
+    }
+
+    function pauseStory() {
+        if (progressFillElement) {
+            progressFillElement.style.animationPlayState = 'paused';
+        }
+    }
+
+    function resumeStory() {
+         if (progressFillElement) {
+            progressFillElement.style.animationPlayState = 'running';
+        }
+    }
+
+    // --- Event Listeners ---
+
+    // Open modal when a story avatar is clicked
+    storyElements.forEach(storyEl => {
+        storyEl.addEventListener("click", () => {
+            const userIndex = parseInt(storyEl.dataset.userIndex, 10);
+            openModal(userIndex);
+        });
+    });
+
+    // Close button
+    closeBtn.addEventListener("click", closeModal);
+    // Close when clicking outside the modal content
+    modal.addEventListener("click", (e) => {
+        if (e.target === modal) {
+            closeModal();
+        }
+    });
+
+    // Navigation controls
+    nextNav.addEventListener("click", navigateToNext);
+    prevNav.addEventListener("click", navigateToPrev);
+
+    // Pause/Resume on hold
+    storyImage.addEventListener('mousedown', pauseStory);
+    storyImage.addEventListener('mouseup', resumeStory);
+    storyImage.addEventListener('touchstart', pauseStory, { passive: true });
+    storyImage.addEventListener('touchend', resumeStory);
+
+    // Keyboard navigation
+    document.addEventListener("keydown", (e) => {
+        if (modal.classList.contains("visible")) {
+            if (e.key === "ArrowRight") navigateToNext();
+            if (e.key === "ArrowLeft") navigateToPrev();
+            if (e.key === "Escape") closeModal();
+        }
+    });
+});
+</script>
+{% endblock %}

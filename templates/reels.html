@@ -1,0 +1,774 @@
+{% extends "base.html" %}
+{% load static %}
+{% load my_tags %}
+
+{% block title %}Reels • Instagram{% endblock %}
+
+{% block reels_active %}active{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* Main Reels Page Styles */
+    body {
+        background-color: #000;
+    }
+    .reels-container {
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        overflow-x: hidden;
+        scroll-snap-type: y mandatory;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    .reel-wrapper {
+        position: relative;
+        width: 100%;
+        max-width: 405px;
+        height: 100vh;
+        margin: 0 auto;
+        background-color: #000;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 0;
+        scroll-snap-align: center;
+    }
+
+    .reel-video {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        border-radius: 0;
+        background-color: #000;
+        box-shadow: 0 2px 15px rgba(255, 255, 255, 0.2);
+    }
+
+    /* Bottom user info overlay */
+    .reel-info {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background: linear-gradient(transparent, rgba(0, 0, 0, 0.7));
+        padding: 40px 16px 20px;
+        color: #fff;
+        z-index: 10;
+        display: flex;
+        flex-direction: column;
+        justify-content: flex-end;
+    }
+
+
+    .user-row {
+        display: flex;
+        align-items: center;
+        margin-bottom: 12px;
+    }
+
+    .user-avatar {
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+        background: linear-gradient(45deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%);
+        margin-right: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-weight: 600;
+        font-size: 14px;
+        border: 2px solid #fff;
+        object-fit: cover;
+    }
+
+    .username {
+        font-size: 14px;
+        font-weight: 600;
+        color: #fff;
+        margin-right: 12px;
+    }
+
+    .caption-text {
+        font-size: 14px;
+        color: #fff;
+        margin-bottom: 8px;
+        line-height: 1.3;
+    }
+
+    .audio-info {
+        display: flex;
+        align-items: center;
+        font-size: 13px;
+        color: #fff;
+        background: rgba(0, 0, 0, 0.5);
+        padding: 6px 12px;
+        border-radius: 12px;
+        width: fit-content;
+    }
+
+    .music-note {
+        width: 12px;
+        height: 12px;
+        margin-right: 6px;
+    }
+
+    .username a {
+        text-decoration: none;
+        color: #fff;
+    }
+
+    /* Reel actions */
+    .reel-actions {
+        position: absolute;
+        right: 12px;
+        bottom: 100px;
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+        z-index: 10;
+    }
+
+    .action-button {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        background: none;
+        border: none;
+        color: #fff;
+        cursor: pointer;
+        padding: 0;
+    }
+
+    .action-button a {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        background: none;
+        border: none;
+        color: #fff;
+        cursor: pointer;
+        padding: 0;
+    }
+
+    .action-button:hover {
+        transform: scale(1.1);
+        transition: transform 0.2s ease;
+    }
+
+    .action-icon {
+        width: 32px;
+        height: 32px;
+        margin-bottom: 4px;
+        fill: currentColor;
+        stroke: currentColor;
+        stroke-width: 1.5;
+    }
+
+    .action-count {
+        font-size: 12px;
+        font-weight: 600;
+        color: #fff;
+        text-align: center;
+        min-width: 32px;
+    }
+
+    /* Empty state */
+    .empty-state {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        height: 100vh;
+        color: #8e8e8e;
+        text-align: center;
+    }
+
+    .empty-state svg {
+        width: 96px;
+        height: 96px;
+        margin-bottom: 24px;
+        opacity: 0.3;
+    }
+
+    .empty-state h3 {
+        font-size: 22px;
+        margin-bottom: 8px;
+        color: #fff;
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+        .reel-wrapper {
+            max-width: 100%;
+            height: 100vh;
+            margin-bottom: 0;
+        }
+
+        .reel-actions {
+            right: 8px;
+            bottom: 120px;
+            gap: 16px;
+        }
+
+        .action-icon {
+            width: 28px;
+            height: 28px;
+        }
+
+        .action-count {
+            font-size: 11px;
+        }
+    }
+
+    @media (max-width: 480px) {
+        .reel-info {
+            right: 50px;
+            padding: 30px 12px 16px;
+        }
+
+        .reel-actions {
+            gap: 14px;
+            bottom: 100px;
+        }
+
+        .action-icon {
+            width: 24px;
+            height: 24px;
+        }
+    }
+
+    .heart-icon {
+        stroke: #fff;
+        fill: none;
+    }
+
+    .liked {
+        fill: #ff3040 !important;
+        stroke: #ff3040;
+    }
+
+    /* --- INSTAGRAM REELS COMMENT MODAL --- */
+    .modal {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.6);
+        z-index: 1000;
+        justify-content: center;
+        align-items: flex-end; /* Align to the bottom for the drawer effect */
+        transition: background-color 0.3s ease;
+    }
+
+    .modal.show {
+        display: flex;
+    }
+
+    .modal-content {
+        width: 100%;
+        max-width: 400px; /* Adjusted for better mobile and desktop view */
+        height: 70%;
+        background: #262626;
+        border-radius: 16px 16px 0 0;
+        display: flex;
+        flex-direction: column;
+        transform: translateY(100%);
+        transition: transform 0.35s ease;
+    }
+
+    .modal.show .modal-content {
+        transform: translateY(0);
+    }
+
+    .modal-header {
+        position: relative;
+        width: 100%;
+        padding: 12px 0 10px 0;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        background: #262626;
+        border-radius: 16px 16px 0 0;
+        border-bottom: 1px solid #363636;
+    }
+
+    .modal-header-drag {
+        width: 40px;
+        height: 5px;
+        background: #888;
+        border-radius: 3px;
+        margin-bottom: 10px;
+    }
+
+    .modal-title {
+        color: #fff;
+        font-weight: 600;
+        font-size: 16px;
+    }
+
+    .modal-close-btn {
+        position: absolute;
+        left: 12px;
+        top: 50%;
+        transform: translateY(-50%);
+        background: none;
+        border: none;
+        color: #aaa;
+        font-size: 24px;
+        cursor: pointer;
+    }
+
+    .comments-container {
+        flex-grow: 1;
+        padding: 15px;
+        overflow-y: auto;
+        color: #fff;
+        background: #262626;
+    }
+
+    .comment-item {
+        display: flex;
+        margin-bottom: 16px;
+        align-items: flex-start;
+        gap: 12px;
+    }
+
+    .comment-avatar {
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+        object-fit: cover;
+    }
+
+    .comment-body {
+        flex-grow: 1;
+        font-size: 14px;
+    }
+
+    .comment-text {
+        word-wrap: break-word;
+        margin-bottom: 4px;
+    }
+
+    .comment-text strong {
+        font-weight: 600;
+        margin-right: 5px;
+        color: #fff;
+    }
+
+    .comment-meta {
+        display: flex;
+        font-size: 12px;
+        color: #8e8e8e;
+        gap: 12px;
+    }
+
+    .comment-meta span {
+        cursor: pointer;
+    }
+
+    .comment-like-icon {
+        width: 12px;
+        height: 12px;
+        margin-left: 10px;
+        fill: none;
+        stroke: #8e8e8e;
+        cursor: pointer;
+    }
+
+    .comment-like-icon.liked {
+        fill: #ff3040 !important;
+        stroke: #ff3040;
+    }
+
+    .no-comments {
+        text-align: center;
+        color: #aaa;
+        padding: 20px;
+    }
+
+    .comment-form-container {
+        border-top: 1px solid #3a3a3a;
+        padding: 12px;
+        background: #262626;
+    }
+
+    .comment-form {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .comment-input-wrapper {
+        flex-grow: 1;
+        background: #363636;
+        border-radius: 20px;
+        padding: 8px 12px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .comment-input {
+        flex-grow: 1;
+        border: none;
+        background: transparent;
+        color: #fff;
+        font-size: 14px;
+        outline: none;
+    }
+
+    .comment-input::placeholder {
+        color: #aaa;
+    }
+
+    .comment-submit {
+        background: none;
+        border: none;
+        color: #0095f6;
+        font-weight: 600;
+        cursor: pointer;
+        padding: 0 5px;
+        font-size: 14px;
+    }
+
+    .comment-submit:disabled {
+        color: #555;
+        cursor: not-allowed;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="reels-container">
+    {% if reels %}
+    {% for reel in reels %}
+    <div class="reel-wrapper" data-reel-id="{{ reel.id }}">
+        <video class="reel-video" muted loop playsinline preload="metadata">
+            <source src="{{ reel.contentUrl.url }}" type="video/mp4">
+            Your browser does not support the video tag.
+        </video>
+
+        <div class="reel-info">
+            <div class="user-row">
+                {% if reel.userID.avatar %}
+                <img class="user-avatar"
+                     src="{{ reel.userID.avatar.url }}" alt="{{ reel.userID.username }} avatar"/>
+                {% else %}
+                <div class="user-avatar">{{ reel.userID.username|upper|first}}</div>
+                {% endif %}
+                <span class="username">
+                    <a href="{% url 'profile-another' pk=reel.userID.id %}" class="post-username">{{ reel.userID.username }}</a>
+                </span>
+            </div>
+
+            <div class="caption-text">
+                {{ reel.caption }}
+            </div>
+
+            <div class="audio-info">
+                <svg class="music-note" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z"/>
+                </svg>
+                {{ reel.userID.username }} • Original audio
+            </div>
+        </div>
+
+        <div class="reel-actions">
+            <button class="action-button like-button" title="Like" data-reel-id="{{ reel.id }}">
+                <svg class="action-icon heart-icon {% if reel|is_reels_liked_by_user:request.user %}liked{% endif %}"
+                     viewBox="0 0 24 24" fill="none" stroke="currentColor" data-liked="{% if reel|is_reels_liked_by_user:request.user %}true{% else %}false{% endif %}">
+                    <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
+                </svg>
+                <span class="action-count">{{ reel.likes.count }}</span>
+            </button>
+
+            <button class="action-button comment-button" title="Comment" data-reel-id="{{ reel.id }}">
+                <svg class="action-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                    <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+                </svg>
+                <span class="action-count">{{ reel.comments_count|default:"0" }}</span>
+            </button>
+
+            <button class="action-button" title="Send">
+                <svg class="action-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                    <line x1="22" y1="2" x2="11" y2="13"></line>
+                    <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+                </svg>
+                <span class="action-count">0</span>
+            </button>
+
+            <button class="action-button" title="Save">
+                <a href="{% url 'save' id=reel.id %}?next={{ request.path }}&{{ request.GET.urlencode }}">
+                    <svg class="action-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                        <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"></path>
+                    </svg>
+                </a>
+                <span class="action-count">{{ reel.saved.count }}</span>
+            </button>
+        </div>
+    </div>
+    {% endfor %}
+    {% else %}
+    <div class="empty-state">
+        <svg viewBox="0 0 24 24" fill="currentColor">
+            <path d="M8 5v14l11-7z"/>
+        </svg>
+        <h3>No reels yet</h3>
+        <p>When people share reels, they'll appear here.</p>
+    </div>
+    {% endif %}
+</div>
+
+<div class="modal" id="commentModal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <div class="modal-header-drag"></div>
+            <h5 class="modal-title">Comments</h5>
+            <button class="modal-close-btn" onclick="closeModal()">
+                <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="#fff" stroke-width="2"
+                     stroke-linecap="round" stroke-linejoin="round" class="feather feather-x">
+                    <line x1="18" y1="6" x2="6" y2="18"></line>
+                    <line x1="6" y1="6" x2="18" y2="18"></line>
+                </svg>
+            </button>
+        </div>
+        <div id="commentsContainer" class="comments-container"></div>
+        <div class="comment-form-container">
+            <form class="comment-form" id="commentForm">
+                {% csrf_token %}
+                <div class="comment-input-wrapper">
+                    {% if user.avatar %}
+                    <img class="comment-avatar" src="{{ user.avatar.url }}" alt="avatar">
+                    {% else %}
+                    <img class="comment-avatar" src="{% static 'images/default-avatar.jpg' %}" alt="avatar">
+                    {% endif %}
+                    <input type="text" name="content" class="comment-input" placeholder="Add a comment..."
+                           id="commentInput">
+                </div>
+                <button type="submit" class="comment-submit" id="commentSubmit" disabled>Post</button>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    let currentVideo = null;
+    let currentReelId = null;
+
+    function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+    const csrfToken = getCookie('csrftoken');
+
+    async function fetchAndDisplayComments(reelId) {
+        const commentsContainer = document.getElementById('commentsContainer');
+        if (!commentsContainer) return;
+
+        commentsContainer.innerHTML = '<div class="no-comments">Kommentariyalar yuklanmoqda...</div>';
+
+        try {
+            const response = await fetch(`/api/reels/${reelId}/comments/`);
+            if (!response.ok) {
+                throw new Error('Kommentariyalarni olishda xato yuz berdi');
+            }
+            const comments = await response.json();
+
+            commentsContainer.innerHTML = '';
+            if (comments.length) {
+                comments.forEach(comment => {
+                    const div = document.createElement('div');
+                    div.className = 'comment-item';
+
+                    const avatarUrl = comment.user_avatar || "{% static 'images/default-avatar.jpg' %}";
+                    const isLikedClass = comment.liked_by_user ? 'liked' : '';
+                    const likeCount = comment.like_count || 0;
+
+                    div.innerHTML = `
+                        <img class="comment-avatar" src="${avatarUrl}" alt="${comment.username} avatar">
+                        <div class="comment-body">
+                            <div class="comment-text">
+                                <strong>${comment.username}</strong>
+                                ${comment.comment_text}
+                            </div>
+                            <div class="comment-meta">
+                                <span>${comment.since_created}</span>
+                                <span>Javob</span>
+                                <span class="comment-likes-count">${likeCount} likes</span>
+                            </div>
+                        </div>
+                        <svg class="comment-like-icon ${isLikedClass}" data-comment-id="${comment.id}" viewBox="0 0 24 24">
+                            <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
+                        </svg>
+                    `;
+                    commentsContainer.appendChild(div);
+                });
+            } else {
+                commentsContainer.innerHTML = '<div class="no-comments">Hali kommentariyalar yo\'q.</div>';
+            }
+        } catch (error) {
+            console.error('Kommentariyalarni olishda xato:', error);
+            commentsContainer.innerHTML = '<div class="no-comments">Kommentariyalarni yuklab bo\'lmadi.</div>';
+        }
+    }
+
+    // Function to handle video play/pause
+    function getVisibleReel() {
+        const wrappers = document.querySelectorAll('.reel-wrapper');
+        let maxVisible = -1;
+        let visibleReelWrapper = null;
+
+        wrappers.forEach(wrapper => {
+            const rect = wrapper.getBoundingClientRect();
+            const visibleHeight = Math.min(rect.bottom, window.innerHeight) - Math.max(rect.top, 0);
+            const visibility = visibleHeight / rect.height;
+
+            if (visibility > maxVisible && visibility > 0.6) {
+                maxVisible = visibility;
+                visibleReelWrapper = wrapper;
+            }
+        });
+
+        return visibleReelWrapper;
+    }
+
+    function updateCurrentVideo() {
+        const visibleWrapper = getVisibleReel();
+        const newVideo = visibleWrapper ? visibleWrapper.querySelector('.reel-video') : null;
+        const newReelId = visibleWrapper ? visibleWrapper.getAttribute('data-reel-id') : null;
+
+        if (newVideo && newVideo !== currentVideo) {
+            if (currentVideo) {
+                currentVideo.pause();
+            }
+            currentVideo = newVideo;
+            currentReelId = newReelId;
+            currentVideo.play().catch(e => console.error('Play failed:', e));
+        }
+    }
+
+    function openModal(reelId) {
+        currentReelId = reelId;
+        const modal = document.getElementById('commentModal');
+        fetchAndDisplayComments(reelId);
+        modal.classList.add('show');
+        document.getElementById('commentInput').focus();
+    }
+
+    function closeModal() {
+        const modal = document.getElementById('commentModal');
+        modal.classList.remove('show');
+        document.getElementById('commentInput').value = '';
+        document.getElementById('commentSubmit').disabled = true;
+    }
+
+    document.addEventListener('click', function(event) {
+        if (event.target.closest('.comment-button')) {
+            event.preventDefault();
+            const button = event.target.closest('.comment-button');
+            const reelId = button.getAttribute('data-reel-id');
+            if (reelId) {
+                openModal(reelId);
+            }
+        }
+        if (event.target.closest('.like-button')) {
+            const button = event.target.closest('.like-button');
+            const reelId = button.getAttribute('data-reel-id');
+            if (reelId) {
+                const likeLink = button.querySelector('a');
+                if (likeLink) {
+                    likeLink.click();
+                } else {
+                    // Fallback for direct SVG click
+                    const icon = button.querySelector('.heart-icon');
+                    const isLiked = icon.getAttribute('data-liked') === 'true';
+                    const newLikedState = !isLiked;
+                    icon.setAttribute('data-liked', newLikedState);
+                    icon.classList.toggle('liked', newLikedState);
+
+                    const countSpan = button.querySelector('.action-count');
+                    let currentCount = parseInt(countSpan.textContent, 10);
+                    countSpan.textContent = newLikedState ? currentCount + 1 : currentCount - 1;
+                }
+            }
+        }
+        if (event.target.closest('.modal') && !event.target.closest('.modal-content')) {
+            closeModal();
+        }
+    });
+
+    document.getElementById('commentInput').addEventListener('input', function() {
+        const submitButton = document.getElementById('commentSubmit');
+        submitButton.disabled = !this.value.trim();
+    });
+
+    document.getElementById('commentForm').addEventListener('submit', async function(event) {
+        event.preventDefault();
+        const commentInput = document.getElementById('commentInput');
+        const commentText = commentInput.value.trim();
+
+        if (!currentReelId || !commentText) {
+            console.error('Reel ID or comment text is missing.');
+            return;
+        }
+
+        try {
+            const response = await fetch(`/api/comments/create/${currentReelId}/`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': csrfToken
+                },
+                body: JSON.stringify({ content: commentText })
+            });
+
+            const data = await response.json();
+            if (response.ok && data.status === 'success') {
+                commentInput.value = '';
+                document.getElementById('commentSubmit').disabled = true;
+                await fetchAndDisplayComments(currentReelId);
+
+                const countSpan = document.querySelector(`.comment-button[data-reel-id="${currentReelId}"] .action-count`);
+                if (countSpan) {
+                    const currentCount = parseInt(countSpan.textContent, 10);
+                    countSpan.textContent = currentCount + 1;
+                }
+            } else {
+                console.error('Kommentariya yaratishda xato yuz berdi:', data.message || 'Unknown error');
+                alert('Kommentariya yuborib bo\'lmadi. Qaytadan urinib ko\'ring.');
+            }
+        } catch (error) {
+            console.error('Kommentariya yaratishda xato:', error);
+            alert('Kommentariya yuborib bo\'lmadi. Qaytadan urinib ko\'ring.');
+        }
+    });
+
+    document.addEventListener('DOMContentLoaded', function() {
+        document.addEventListener('scroll', updateCurrentVideo);
+        updateCurrentVideo();
+    });
+
+    document.addEventListener('keydown', function(event) {
+        if (event.key === 'k' && currentVideo) {
+            currentVideo.muted = !currentVideo.muted;
+        }
+    });
+</script>
+{% endblock %}

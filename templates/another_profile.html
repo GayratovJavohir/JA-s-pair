@@ -1,0 +1,820 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Instagram{% endblock %}
+
+
+{% block extra_css %}
+@media (max-width: 1024px) {
+.right-sidebar { display: none; }
+.main-content { margin-right: 0; }
+}
+
+.main-content { flex: 1; margin-left: 200px; padding: 60px 0; }
+.profile-header {
+display: flex; align-items: center; gap: 30px; padding: 0 0 20px 20px;
+}
+.profile-pic {
+width: 150px; height: 150px; border-radius: 50%;
+background-color: #262626; border: 2px solid #fff;
+display: flex; align-items: center; justify-content: center;
+font-size: 70px; position: relative;
+}
+.profile-info { flex: 1; }
+.profile-top { display: flex; align-items: center; gap: 15px; }
+.profile-top h2 { font-size: 24px; font-weight: normal; }
+.profile-top button {
+background-color: #262626; color: #fff; border: none;
+padding: 5px 12px; border-radius: 8px; font-size: 14px; cursor: pointer;
+}
+.profile-top i { font-size: 20px; cursor: pointer; }
+.stats { display: flex; gap: 20px; margin-top: 15px; }
+.stats div { font-size: 16px; }
+.stats span { font-weight: bold; }
+.bio {
+margin-top: 15px;
+font-size: 14px;
+color: #fff;
+line-height: 1.4;
+}
+
+.bio strong {
+display: block;
+font-size: 15px;
+font-weight: 600;
+margin-bottom: 5px;
+}
+
+.bio p {
+margin: 5px 0;
+font-size: 14px;
+color: #ddd;
+}
+
+.bio .profile-btn {
+display: inline-block;
+margin-top: 8px;
+color: #0095f6;
+text-decoration: none;
+font-weight: 500;
+font-size: 14px;
+}
+
+.bio .profile-btn:hover {
+text-decoration: underline;
+}
+
+.highlights { display: flex; gap: 50px; margin-top: 30px; }
+.highlight { text-align: center; font-size: 12px; }
+.highlight img {
+width: 80px; height: 80px;
+border-radius: 50%;
+border: 1.5px solid #333;
+padding: 2px;
+}
+.bottom-nav {
+display: flex;
+justify-content: center;
+gap: 250px;
+margin-top: 50px;
+border-bottom: 1px solid #262626;
+padding-bottom: 15px;
+width: 900px;
+}
+.bottom-nav i { font-size: 20px; }
+.share-section {
+text-align: center; margin-top: 50px; margin-right: 210px;
+}
+.share-section i { font-size: 60px; margin-bottom: 20px; }
+.share-section h3 { font-size: 20px; margin-bottom: 10px; }
+.share-section p { font-size: 14px; color: #aaa; }
+.share-section a {
+color: #3797f0; text-decoration: none; font-weight: bold;
+}
+
+.modal {
+display: none; position: fixed; z-index: 200; left: 0; top: 0;
+width: 100%; height: 100%; background-color: rgba(0,0,0,0.6);
+}
+.modal-content {
+background-color: #121212; color: #fff; margin: 8% auto;
+padding: 20px; border-radius: 12px; width: 400px;
+box-shadow: 0 0 15px rgba(0,0,0,0.5);
+}
+.modal-content h2 { margin-bottom: 15px; font-size: 22px; }
+.modal-content label { display: block; margin: 10px 0 5px; font-size: 14px; }
+.modal-content input,
+.modal-content textarea {
+width: 100%; padding: 8px; border: 1px solid #333;
+background: #1a1a1a; color: #fff; border-radius: 6px; font-size: 14px;
+}
+.modal-content input:focus,
+.modal-content textarea:focus {
+outline: none; border-color: #3797f0;
+}
+.modal-actions {
+display: flex; justify-content: flex-end; gap: 10px; margin-top: 15px;
+}
+.modal-actions button {
+padding: 8px 14px; border-radius: 6px; border: none; cursor: pointer;
+}
+#save-btn { background-color: #3797f0; color: #fff; }
+#cancel-btn { background-color: #262626; color: #fff; }
+.close-btn {
+float: right; font-size: 20px; cursor: pointer; color: #aaa;
+}
+.close-btn:hover { color: #fff; }
+
+.profile-header img {
+width: 120px;   /* kenglik */
+height: 120px;  /* balandlik */
+object-fit: cover; /* tasvirni markazda va kesilgan holatda saqlaydi */
+border-radius: 50%; /* yumaloq */
+border: 2px solid #fff;
+}
+
+.tab-content {
+display: grid;
+grid-template-columns: repeat(3, 1fr);
+gap: 2px;
+max-width: 935px; /* Instagram profildagi rasmlar eni */
+margin: 0 auto;   /* O'rtaga joylash uchun */
+}
+
+.post {
+position: relative;
+width: 100%;
+aspect-ratio: 1 / 1;
+overflow: hidden;
+cursor: pointer;
+}
+
+.post img {
+width: 100%;
+height: 100%;
+object-fit: cover;
+display: block;
+transition: transform 0.3s ease;
+}
+
+.post:hover img {
+transform: scale(1.05);
+}
+
+.overlay {
+position: absolute;
+inset: 0;
+background: rgba(0, 0, 0, 0.4);
+color: #fff;
+display: flex;
+justify-content: center;
+align-items: center;
+gap: 20px;
+font-size: 18px;
+font-weight: 600;
+opacity: 0;
+transition: opacity 0.3s ease;
+}
+
+.post:hover .overlay {
+opacity: 1;
+}
+
+.overlay .icon {
+display: flex;
+align-items: center;
+gap: 6px;
+}
+
+.profile-nav-tabs {
+display: flex;
+justify-content: center;
+gap: 60px;
+padding: 16px 0;
+}
+
+.profile-tab {
+background: none;
+border: none;
+color: #8e8e8e;
+font-size: 12px;
+font-weight: 600;
+text-transform: uppercase;
+letter-spacing: 1px;
+padding: 16px 0;
+cursor: pointer;
+display: flex;
+align-items: center;
+gap: 6px;
+transition: color 0.2s;
+border-top: 1px solid transparent;
+}
+
+.profile-tab.active {
+color: #fff;
+border-top-color: #fff;
+}
+
+.profile-tab:hover {
+color: #fff;
+}
+
+.tab-content {
+display: none;
+}
+
+.tab-content.active {
+display: block;
+}
+
+/* Profile Grid */
+.profile-posts, .profile-reels, .tagged-posts {
+display: grid;
+grid-template-columns: repeat(3, 1fr);
+gap: 3px;
+padding: 0;
+}
+
+.profile-item {
+position: relative;
+cursor: pointer;
+overflow: hidden;
+background-color: #262626;
+transition: transform 0.1s ease;
+aspect-ratio: 1;
+}
+
+.profile-item:hover {
+transform: scale(1.02);
+z-index: 10;
+}
+
+.profile-item img,
+.profile-item video {
+width: 100%;
+height: 100%;
+object-fit: cover;
+display: block;
+transition: filter 0.2s ease;
+}
+
+.profile-item:hover img,
+.profile-item:hover video {
+filter: brightness(0.8);
+}
+
+/* Overlay that appears on hover */
+.profile-overlay {
+position: absolute;
+top: 0;
+left: 0;
+right: 0;
+bottom: 0;
+background: rgba(0, 0, 0, 0.3);
+display: flex;
+align-items: center;
+justify-content: center;
+opacity: 0;
+transition: opacity 0.2s ease;
+}
+
+.profile-item:hover .profile-overlay {
+opacity: 1;
+}
+
+.profile-stats-overlay {
+display: flex;
+align-items: center;
+gap: 20px;
+color: #fff;
+font-size: 16px;
+font-weight: 600;
+}
+
+.profile-stat-overlay {
+display: flex;
+align-items: center;
+gap: 6px;
+}
+
+/* Content type indicators */
+.content-indicator {
+position: absolute;
+top: 8px;
+right: 8px;
+z-index: 5;
+}
+
+.reel-indicator {
+width: 24px;
+height: 24px;
+color: #fff;
+filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.8));
+}
+
+/* Empty state */
+.empty-state {
+text-align: center;
+padding: 80px 20px;
+color: #8e8e8e;
+grid-column: 1 / -1;
+}
+
+.empty-state i {
+font-size: 96px;
+margin-bottom: 24px;
+opacity: 0.3;
+}
+
+.empty-state h3 {
+font-size: 22px;
+margin-bottom: 8px;
+color: #fff;
+}
+
+.no-comments {
+text-align: center;
+padding: 20px;
+color: #8e8e8e;
+font-size: 14px;
+}
+{% endblock %}
+
+
+{% block content %}
+<!-- Main Profile -->
+<div class="main-content">
+    <!-- Profile Header -->
+    <div class="profile-header">
+        {% if user.avatar %}
+        <img src="{{ user.avatar.url }}" alt="{{ user.username }}">
+        {% else %}
+        <div class="profile-pic"><i class="fas fa-user"></i></div>
+        {% endif %}
+        <div class="profile-info">
+            <div class="profile-top">
+                <h2>{{ user.username }}</h2>
+                <div class="profile-actions">
+                    <button class="profile-btn" id="follow-btn" data-user-id="{{ user.id }}">
+                        <a style="color:white;text-decoration:none;" href="{% url 'follow-create' pk=user.id %}">
+                            {% if request|is_following:user %}
+                            Unfollow
+                            {% else %}
+                            Follow
+                            {% endif %}
+                        </a>
+                    </button>
+                    <a style="text-decoration:none;" href="{% url 'messages' %}" class="profile-btn">Message</a>
+                </div>
+            </div>
+            <div class="stats">
+                <div class="profile-stat"><strong>{{ posts.count|default:"0" }}</strong> posts</div>
+                <div><span>0</span> followers</div>
+                <div><span>0</span> following</div>
+            </div>
+            <div class="bio">
+                {% if user.first_name or user.last_name %}
+                <strong>{{ user.first_name }} {{ user.last_name }}</strong>
+                {% endif %}
+                {% if user.bio %}
+                <p>{{ user.bio }}</p>
+                {% endif %}
+                {% if user.website %}
+                <a href="{{ user.website }}" target="_blank" class="profile-btn">{{ user.website }}</a>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Highlights -->
+    <div class="highlights">
+        <div class="highlight">
+            <div style="
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            border: 1.5px solid #333;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 30px;
+            background-color: #1a1a1a;
+        ">
+                <i class="fas fa-plus"></i>
+            </div>
+            <div style="margin-top: 5px;">New</div>
+        </div>
+    </div>
+
+    <!-- Bottom Nav -->
+    <div class="bottom-nav">
+        <div class="profile-nav-tabs">
+            <button class="profile-tab active" data-tab="posts">
+                <i class="fas fa-th"></i>
+                Posts
+            </button>
+            <button class="profile-tab" data-tab="reels">
+                <i class="fas fa-play-circle"></i>
+                Reels
+            </button>
+            <button class="profile-tab" data-tab="tagged">
+                <i class="fas fa-user-tag"></i>
+                Tagged
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Modal -->
+<div class="modal" id="edit-profile-modal">
+    <div class="modal-content">
+        <span class="close-btn" id="close-modal">&times;</span>
+        <h2>Edit Profile</h2>
+        <form action="{% url 'profile' %}" id="edit-profile-form" method="POST" enctype="multipart/form-data">
+            {% csrf_token %}
+            <label>Username</label>
+            <input type="text" name="username" id="edit-username" value="{{ user.username }}">
+            <label>Firstname</label>
+            <input type="text" name="first_name" value="{{ user.first_name }}">
+            <label>Lastname</label>
+            <input type="text" name="last_name" value="{{ user.last_name }}">
+            <label>Avatar</label>
+            <input type="file" name="avatar">
+            <label>Bio</label>
+            <textarea id="edit-bio" rows="3" name="bio">{{ user.bio }}</textarea>
+            <label>Website</label>
+            <input type="url" id="edit-website" name="website" value="{{ user.website }}">
+            <div class="modal-actions">
+                <button type="button" id="cancel-btn">Cancel</button>
+                <button type="submit" id="save-btn">Save</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="tab-content active" id="posts-content">
+    <div class="profile-posts">
+        {% if posts %}
+        {% for post in posts %}
+        <div class="profile-item"
+             data-type="post"
+             data-id="{{ post.id }}"
+             data-url="{{ post.contentUrl.url }}"
+             data-username="{{ post.userID.username }}"
+             data-user-avatar="{% if post.userID.avatar %}{{ post.userID.avatar.url }}{% endif %}"
+             data-caption="{{ post.caption }}"
+             data-likes="{{ post.likes_count }}"
+             data-comments="{{ post.comments_count }}">
+
+            {% if post.contentUrl %}
+            <img src="{{ post.contentUrl.url }}" alt="Post" loading="lazy">
+            {% endif %}
+
+            <div class="profile-overlay">
+                <div class="profile-stats-overlay">
+                    <div class="profile-stat-overlay">
+                        <i class="fas fa-heart"></i>
+                        <span>{{ post.likes_count }}</span>
+                    </div>
+                    <div class="profile-stat-overlay">
+                        <i class="fas fa-comment"></i>
+                        <span>{{ post.comments_count }}</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+        {% else %}
+        <div class="empty-state">
+            <i class="fas fa-camera"></i>
+            <h3>No posts yet</h3>
+            <p>When you share photos, they'll appear on your profile.</p>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<div class="tab-content" id="reels-content">
+    <div class="profile-reels">
+        {% if reels %}
+        {% for reel in reels %}
+        <div class="profile-item reel"
+             data-type="reel"
+             data-id="{{ reel.id }}"
+             data-url="{{ reel.contentUrl.url }}"
+             data-username="{{ reel.userID.username }}"
+             data-user-avatar="{% if reel.userID.avatar %}{{ reel.userID.avatar.url }}{% endif %}"
+             data-caption="{{ reel.caption }}"
+             data-likes="{{ reel.likes_count }}"
+             data-views="{{ reel.likes_count }}">
+
+            {% if reel.contentUrl %}
+            <video muted loop playsinline preload="metadata">
+                <source src="{{ reel.contentUrl.url }}" type="video/mp4">
+            </video>
+            {% endif %}
+
+            <div class="content-indicator">
+                <i class="fas fa-play reel-indicator"></i>
+            </div>
+            <div class="profile-overlay">
+                <div class="profile-stats-overlay">
+                    <div class="profile-stat-overlay">
+                        <i class="fas fa-heart"></i>
+                        <span>{{ reel.likes_count }}</span>
+                    </div>
+                    <div class="profile-stat-overlay">
+                        <i class="fas fa-eye"></i>
+                        <span>{{ reel.likes_count }}</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+        {% else %}
+        <div class="empty-state">
+            <i class="fas fa-video"></i>
+            <h3>No reels yet</h3>
+            <p>When you share reels, they'll appear on your profile.</p>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<div class="tab-content" id="tagged-content">
+    <div class="tagged-posts">
+        <div class="empty-state">
+            <i class="fas fa-user-tag"></i>
+            <h3>No tagged posts yet</h3>
+            <p>When people tag you in photos, they'll appear here.</p>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+
+{% block scripts %}
+<script>
+    document.addEventListener("DOMContentLoaded", () => {
+        const editBtn = document.getElementById("edit-profile-btn");
+        const modal = document.getElementById("edit-profile-modal");
+        const closeModal = document.getElementById("close-modal");
+        const cancelBtn = document.getElementById("cancel-btn");
+        const form = document.getElementById("edit-profile-form");
+
+        if (editBtn) {
+            editBtn.addEventListener("click", () => {
+            modal.style.display = "block";
+        });
+        }
+
+        function hideModal() {
+            modal.style.display = "none";
+        }
+
+        if (closeModal) closeModal.addEventListener("click", hideModal);
+        if (cancelBtn) cancelBtn.addEventListener("click", hideModal);
+
+
+        window.addEventListener("keydown", (e) => {
+            if (e.key === "Escape") hideModal();
+        });
+
+        form.addEventListener("submit", () => {
+            hideModal();
+        });
+    });
+
+    let currentPostData = null;
+    let isReplyMode = false;
+    let postsData = {};
+
+    // Initialize posts data function
+    function initializePostsData() {
+        {% for post in posts %}
+        postsData['{{ post.id }}'] = {
+            comments: [
+                {% for comment in post.comments.all %}
+                {
+                    id: {{ comment.id }},
+                    username: '{{ comment.userID.username }}',
+                    userAvatar: '{% if comment.userID.avatar %}{{ comment.userID.avatar.url }}{% endif %}',
+                    text: '{{ comment.comment|escapejs }}',
+                    timeAgo: '{{ comment.since_created }}',
+                    replies: [
+                        {% for reply in comment.reply_comments.all %}
+                        {
+                            id: {{ reply.id }},
+                            username: '{{ reply.userID.username }}',
+                            userAvatar: '{% if reply.userID.avatar %}{{ reply.userID.avatar.url }}{% endif %}',
+                            text: '{{ reply.reply_comment|escapejs }}',
+                            timeAgo: '{{ reply.since_created }}',
+                        }{% if not forloop.last %},{% endif %}
+                        {% endfor %}
+                    ]
+                }{% if not forloop.last %},{% endif %}
+                {% endfor %}
+            ]
+        };
+        {% endfor %}
+
+        {% for reel in reels %}
+        postsData['{{ reel.id }}'] = {
+            comments: [
+                {% for comment in reel.comments.all %}
+                {
+                    id: {{ comment.id }},
+                    username: '{{ comment.userID.username }}',
+                    userAvatar: '{% if comment.userID.avatar %}{{ comment.userID.avatar.url }}{% endif %}',
+                    text: '{{ comment.comment|escapejs }}',
+                    timeAgo: '{{ comment.since_created }}',
+                    replies: [
+                        {% for reply in comment.reply_comments.all %}
+                        {
+                            id: {{ reply.id }},
+                            username: '{{ reply.userID.username }}',
+                            userAvatar: '{% if reply.userID.avatar %}{{ reply.userID.avatar.url }}{% endif %}',
+                            text: '{{ reply.reply_comment|escapejs }}',
+                            timeAgo: '{{ reply.since_created }}',
+                        }{% if not forloop.last %},{% endif %}
+                        {% endfor %}
+                    ]
+                }{% if not forloop.last %},{% endif %}
+                {% endfor %}
+            ]
+        };
+        {% endfor %}
+    }
+
+
+
+    document.addEventListener('DOMContentLoaded', function() {
+        // Initialize posts data first
+        initializePostsData();
+
+        // Tab switching functionality
+        const tabs = document.querySelectorAll('.profile-tab');
+        const tabContents = document.querySelectorAll('.tab-content');
+
+        tabs.forEach(tab => {
+            tab.addEventListener('click', function() {
+                const targetTab = this.getAttribute('data-tab');
+                tabs.forEach(t => t.classList.remove('active'));
+                tabContents.forEach(content => content.classList.remove('active'));
+                this.classList.add('active');
+                document.getElementById(targetTab + '-content').classList.add('active');
+            });
+        });
+
+        // Video hover functionality for reels
+        const reelItems = document.querySelectorAll('.profile-item.reel');
+        reelItems.forEach(item => {
+            const video = item.querySelector('video');
+            if (video) {
+                item.addEventListener('mouseenter', function() {
+                    video.play().catch(() => {});
+                });
+                item.addEventListener('mouseleave', function() {
+                    video.pause();
+                    video.currentTime = 0;
+                });
+            }
+        });
+
+        // Click handlers for opening modal
+        const profileItems = document.querySelectorAll('.profile-item');
+        profileItems.forEach(item => {
+            item.addEventListener('click', function() {
+                openModal(this);
+            });
+        });
+
+        // Comment form submission
+        const commentForm = document.getElementById('commentForm');
+        if (commentForm) {
+            commentForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                submitComment();
+            });
+        }
+
+        // Comment input functionality
+        const commentInput = document.getElementById('commentInput');
+        const replyInput = document.getElementById('replyInput');
+        const commentSubmitBtn = document.getElementById('commentSubmitBtn');
+
+        if (commentInput && commentSubmitBtn) {
+            commentInput.addEventListener('input', function() {
+                updateSubmitButton();
+            });
+        }
+
+        if (replyInput && commentSubmitBtn) {
+            replyInput.addEventListener('input', function() {
+                updateSubmitButton();
+            });
+        }
+    });
+
+    function loadComments(postId) {
+        const modalComments = document.getElementById('modalComments');
+
+        // Get comments from our initialized data
+        const postData = postsData[postId];
+        if (!postData || !postData.comments) {
+            modalComments.innerHTML = '<div class="no-comments">No comments yet.</div>';
+            return;
+        }
+
+        renderComments(postData.comments);
+    }
+
+    function renderComments(comments) {
+        const modalComments = document.getElementById('modalComments');
+
+        if (comments.length === 0) {
+            modalComments.innerHTML = '<div class="no-comments">No comments yet.</div>';
+            return;
+        }
+
+        modalComments.innerHTML = '';
+
+        comments.forEach(comment => {
+            const commentElement = createCommentElement(comment);
+            modalComments.appendChild(commentElement);
+        });
+    }
+
+    function createCommentElement(comment) {
+        const commentDiv = document.createElement('div');
+        commentDiv.className = 'comment-item';
+        commentDiv.dataset.commentId = comment.id;
+
+        const avatarHtml = comment.userAvatar ?
+            `<img src="${comment.userAvatar}" alt="${comment.username}">` :
+            comment.username.charAt(0).toUpperCase();
+
+        commentDiv.innerHTML = `
+            <div class="comment-avatar">${avatarHtml}</div>
+            <div class="comment-content">
+                <div class="comment-text">
+                    <span class="comment-username">${comment.username}</span>${comment.text}
+                </div>
+                <div class="comment-actions">
+                    <span class="comment-time">${comment.timeAgo}</span>
+                    <button class="comment-reply" onclick="startReply('${comment.id}', '${comment.username}')">Reply</button>
+                    <span class="comment-likes">${comment.likesCount} likes</span>
+                    <button class="comment-heart ${comment.likedByUser ? 'liked' : ''}" onclick="toggleCommentLike(${comment.id})">
+                        <i class="fas fa-heart"></i>
+                    </button>
+                </div>
+                <div class="replies-container" id="replies-${comment.id}">
+                    ${comment.replies ? comment.replies.map(reply => createReplyHTML(reply)).join('') : ''}
+                </div>
+            </div>
+        `;
+
+        return commentDiv;
+    }
+
+    function createReplyHTML(reply) {
+        const avatarHtml = reply.userAvatar ?
+            `<img src="${reply.userAvatar}" alt="${reply.username}">` :
+            reply.username.charAt(0).toUpperCase();
+
+        return `
+            <div class="reply-item" data-reply-id="${reply.id}">
+                <div class="reply-avatar">${avatarHtml}</div>
+                <div class="comment-content">
+                    <div class="comment-text">
+                        <span class="comment-username">${reply.username}</span>${reply.text}
+                    </div>
+                    <div class="comment-actions">
+                        <span class="comment-time">${reply.timeAgo}</span>
+                        <span class="comment-likes">${reply.likesCount} likes</span>
+                        <button class="comment-heart ${reply.likedByUser ? 'liked' : ''}" onclick="toggleReplyLike(${reply.id})">
+                            <i class="fas fa-heart"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        `;
+    }
+
+    function updateSubmitButton() {
+        const commentInput = document.getElementById('commentInput');
+        const replyInput = document.getElementById('replyInput');
+        const commentSubmitBtn = document.getElementById('commentSubmitBtn');
+
+        const activeInput = isReplyMode ? replyInput : commentInput;
+
+        if (activeInput && activeInput.value.trim().length > 0) {
+            commentSubmitBtn.classList.add('active');
+        } else {
+            commentSubmitBtn.classList.remove('active');
+        }
+    }
+
+</script>
+{% endblock %}

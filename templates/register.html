@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sign up • Instagram</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            background-color: #000;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            color: #fff;
+            margin: 0;
+        }
+        .container {
+            width: 350px;
+            background: #000;
+            border: 1px solid #262626;
+            padding: 40px 40px 20px;
+            border-radius: 4px;
+            text-align: center;
+        }
+        .logo {
+            font-family: 'Billabong', cursive;
+            font-size: 48px;
+            margin-bottom: 10px;
+        }
+        .subtitle {
+            color: #a8a8a8;
+            font-size: 17px;
+            margin: 10px 0 20px;
+        }
+        .fb-btn {
+            width: 100%;
+            background-color: #0095f6;
+            color: #fff;
+            border: none;
+            padding: 8px 0;
+            font-weight: 600;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        .fb-btn:hover {
+            background-color: #1877f2;
+        }
+        .fb-btn img {
+            width: 16px;
+            height: 16px;
+            margin-right: 6px;
+        }
+        .or {
+            display: flex;
+            align-items: center;
+            margin: 20px 0;
+            color: #a8a8a8;
+            font-size: 13px;
+            font-weight: 600;
+        }
+        .or::before, .or::after {
+            content: "";
+            flex: 1;
+            height: 1px;
+            background: #262626;
+        }
+        .or::before {
+            margin-right: 18px;
+        }
+        .or::after {
+            margin-left: 18px;
+        }
+        .form-input {
+            width: 100%;
+            padding: 9px 8px;
+            margin: 5px 0;
+            border: 1px solid #262626;
+            background: #121212;
+            color: #fff;
+            border-radius: 4px;
+            font-size: 12px;
+        }
+        .form-input:focus {
+            outline: none;
+            border-color: #8e8e8e;
+        }
+        .info-text {
+            color: #a8a8a8;
+            font-size: 12px;
+            margin: 15px 0;
+        }
+        .info-text a {
+            color: #0095f6;
+            text-decoration: none;
+        }
+        .signup-btn {
+            width: 100%;
+            background-color: #0095f6;
+            color: #fff;
+            border: none;
+            padding: 8px 0;
+            font-weight: 600;
+            border-radius: 8px;
+            cursor: pointer;
+            margin-top: 8px;
+        }
+        .signup-btn:hover {
+            background-color: #1877f2;
+        }
+        .bottom-box {
+            width: 390px;
+            background: #000;
+            border: 1px solid #262626;
+            padding: 20px;
+            text-align: center;
+            margin-top: 10px;
+            font-size: 14px;
+            border-radius: 3px;
+        }
+        .bottom-box a {
+            color: #0095f6;
+            text-decoration: none;
+        }
+
+        .form-input.error {
+            border-color: #ed4956;
+            background-color: rgba(237, 73, 86, 0.1);
+        }
+
+        .error-message {
+            background-color: rgba(237, 73, 86, 0.1);
+            border: 1px solid #ed4956;
+            border-radius: 6px;
+            color: #ed4956;
+            font-size: 12px;
+            padding: 8px 12px;
+            margin-bottom: 8px;
+            text-align: center;
+        }
+
+
+        .signup-btn:hover:not(:disabled) {
+            background-color: #1877f2;
+        }
+
+        .signup-btn:disabled {
+            background-color: #0095f6;
+            opacity: 0.3;
+            cursor: not-allowed;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: #8e8e8e;
+        }
+
+        .form-input::placeholder {
+            color: #8e8e8e;
+        }
+
+        .form-input.error {
+            border-color: #ed4956;
+            background-color: rgba(237, 73, 86, 0.1);
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="logo">Instagram</div>
+    <div class="subtitle">Sign up to see photos and videos from your friends.</div>
+
+    <button class="fb-btn">
+        <img src="https://upload.wikimedia.org/wikipedia/commons/0/05/Facebook_Logo_(2019).png" alt="fb">
+        Log in with Facebook
+    </button>
+
+    <div class="or">OR</div>
+
+    <form class="register-form" method="post" action="{% url 'register' %}">
+
+        {% csrf_token %}
+
+        <!-- Error Messages -->
+        {% if form.errors %}
+        {% for field, errors in form.errors.items %}
+        {% for error in errors %}
+        <div class="error-message">{{ error }}</div>
+        {% endfor %}
+        {% endfor %}
+        {% endif %}
+
+        {% if messages %}
+        {% for message in messages %}
+        <div class="error-message">{{ message }}</div>
+        {% endfor %}
+        {% endif %}
+
+        <input type="text" name="email" class="form-input" placeholder="Mobile number or email address" required>
+        <input type="text" name="first_name" class="form-input" placeholder="First Name" required>
+        <input type="text" name="last_name" class="form-input" placeholder="Last Name" required>
+        <input type="text" name="username" class="form-input" placeholder="Username" required>
+        <input type="password" name="password" class="form-input" placeholder="Password" required
+               minlength="8"
+               id="password">
+        <input type="password" name="confirm_password" class="form-input" placeholder="Confirm Password" required
+               minlength="8"
+               id="password2"
+        >
+
+        <div class="info-text">
+            People who use our service may have uploaded your contact information to Instagram. <a href="#">Learn
+            more</a>
+        </div>
+
+        <div class="info-text">
+            By signing up, you agree to our <a href="#">Terms</a>, <a href="#">Privacy Policy</a> and <a href="#">Cookies
+            Policy</a>.
+        </div>
+
+        <button type="submit" class="signup-btn" id="register-btn">
+            Sign up
+        </button>
+
+    </form>
+</div>
+
+<div class="bottom-box">
+    Have an account? <a href="{% url 'login' %}">Log in</a>
+</div>
+
+
+<script>
+    // Password confirmation validation
+    document.addEventListener('DOMContentLoaded', function() {
+        const form = document.querySelector('.register-form');
+        const password = document.getElementById('password');
+        const passwordConfirm = document.getElementById('password2');
+        const submitBtn = document.getElementById('register-btn');
+
+        function validatePasswords() {
+            if (password.value && passwordConfirm.value) {
+                if (password.value !== passwordConfirm.value) {
+                    passwordConfirm.setCustomValidity('Passwords do not match');
+                    passwordConfirm.classList.add('error');
+                } else {
+                    passwordConfirm.setCustomValidity('');
+                    passwordConfirm.classList.remove('error');
+                }
+            }
+        }
+
+        password.addEventListener('input', validatePasswords);
+        passwordConfirm.addEventListener('input', validatePasswords);
+
+        // Form submission
+        form.addEventListener('submit', function(e) {
+            validatePasswords();
+
+            if (!form.checkValidity()) {
+                e.preventDefault();
+                return;
+            }
+
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'Creating Account...';
+        });
+    });
+
+    function loginWithFacebook() {
+        alert('Facebook login integration would go here');
+    }
+</script>
+</body>
+</html>

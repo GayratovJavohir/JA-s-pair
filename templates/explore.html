@@ -1,0 +1,691 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load my_tags %}
+
+{% block title %}Explore • Instagram{% endblock %}
+{% block explore_active %}active{% endblock %}
+
+{% block extra_head %}
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+{% endblock %}
+
+{% block extra_css %}
+/* General body styling */
+body {
+    background-color: #0e0e10;
+    color: #e0e0e0;
+    font-family: 'Inter', sans-serif;
+    margin: 0;
+}
+
+/* Explore Container */
+.explore-container {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 4px;
+    max-width: 1000px;
+    margin: 0 auto;
+    padding: 50px 20px;
+}
+
+/* Explore Item */
+.explore-item {
+    position: relative;
+    cursor: pointer;
+    overflow: hidden;
+    background-color: #262626;
+    aspect-ratio: 1 / 1;
+}
+
+.explore-item img,
+.explore-item video {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+    transition: opacity 0.3s ease;
+}
+
+.explore-item:hover img,
+.explore-item:hover video {
+    opacity: 0.7;
+}
+
+.explore-overlay {
+    position: absolute;
+    inset: 0;
+    color: #fff;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 20px;
+    font-size: 18px;
+    font-weight: 600;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    pointer-events: none;
+}
+
+.explore-item:hover .explore-overlay {
+    opacity: 1;
+}
+
+.explore-overlay .icon {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.media-icon {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    color: #fff;
+    filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.8));
+    z-index: 5;
+}
+
+.explore-item.big {
+    grid-column: span 2;
+    grid-row: span 2;
+}
+
+/* --- Post/Explore Modal (Combined & Fixed) --- */
+.explore-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.9);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s ease;
+}
+
+.explore-modal.active {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+.modal-content {
+    background-color: #000;
+    border-radius: 8px;
+    width: 90%;
+    max-width: 935px;
+    max-height: 90vh;
+    display: flex;
+    overflow: hidden;
+}
+
+.modal-media-container {
+    flex: 2;
+    background-color: #000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+}
+
+.modal-media {
+    max-width: 100%;
+    max-height: 90vh;
+    object-fit: contain;
+}
+
+.modal-close {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    color: #fff;
+    font-size: 32px;
+    cursor: pointer;
+    z-index: 1010;
+    background: none;
+    border: none;
+    text-shadow: 0 1px 4px rgba(0,0,0,0.7);
+}
+
+
+/* --- NEW: Instagram-Style Modal Sidebar Styles --- */
+.modal-sidebar {
+    flex: 1;
+    max-width: 400px;
+    min-width: 350px;
+    display: flex;
+    flex-direction: column;
+    background-color: #1a1a1a;
+    border-left: 1px solid #363636;
+}
+
+.modal-header {
+    padding: 14px 16px;
+    display: flex;
+    align-items: center;
+    border-bottom: 1px solid #363636;
+    gap: 12px;
+}
+
+.modal-user-avatar {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+.modal-profile-link {
+    font-weight: 600;
+    color: #f5f5f5;
+    text-decoration: none;
+}
+.modal-profile-link:hover {
+    text-decoration: underline;
+}
+
+.modal-options-btn {
+    margin-left: auto;
+    background: none;
+    border: none;
+    color: #f5f5f5;
+    font-size: 16px;
+    cursor: pointer;
+}
+
+/* Main scrollable area for caption and comments */
+.modal-scroll-content {
+    flex: 1;
+    overflow-y: auto;
+    padding: 16px;
+}
+
+/* The post caption, styled like the first comment */
+.modal-caption-container {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 24px;
+}
+.modal-caption-text {
+    color: #f5f5f5;
+    font-size: 14px;
+    line-height: 1.5;
+    word-break: break-word;
+}
+.modal-caption-text strong {
+    margin-right: 6px;
+    font-weight: 600;
+}
+
+/* Individual Comment Styling */
+.modal-comment {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 16px;
+}
+.modal-comment-avatar {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    object-fit: cover;
+    margin-top: 2px;
+    flex-shrink: 0;
+}
+.modal-comment-content {
+    flex: 1;
+    font-size: 14px;
+    line-height: 1.4;
+}
+.modal-comment-body {
+    color: #f5f5f5;
+    margin-bottom: 6px;
+    word-break: break-word;
+}
+.modal-comment-body strong {
+    margin-right: 6px;
+    font-weight: 600;
+}
+.comment-meta {
+    display: flex;
+    gap: 12px;
+    font-size: 12px;
+    color: #8e8e8e;
+    font-weight: 500;
+}
+.comment-meta button {
+    background: none;
+    border: none;
+    color: #8e8e8e;
+    cursor: pointer;
+    padding: 0;
+    font-weight: 600;
+}
+.comment-like-btn {
+    margin-left: auto;
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: #8e8e8e;
+}
+.comment-like-btn.liked i {
+    font-family: "Font Awesome 6 Free"; font-weight: 900;
+    color: #ed4956;
+    animation: like-pop 0.4s ease;
+}
+@keyframes like-pop {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.2); }
+    100% { transform: scale(1); }
+}
+
+/* Action buttons below the scroll area */
+.modal-actions-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 16px;
+    border-top: 1px solid #363636;
+}
+.modal-action-buttons { display: flex; gap: 16px; }
+.modal-action-btn {
+    background: none;
+    border: none;
+    color: #f5f5f5;
+    font-size: 24px;
+    cursor: pointer;
+    transition: color 0.2s ease;
+}
+.modal-action-btn:hover { color: #8e8e8e; }
+.modal-like-btn.active .fa-heart {
+    font-family: "Font Awesome 6 Free";
+    font-weight: 900;
+    color: #ed4956;
+}
+
+/* Post stats (likes, date) */
+.modal-post-info {
+    padding: 0 16px 12px;
+    font-size: 14px;
+}
+.modal-likes-count {
+    font-weight: 600;
+    color: #f5f5f5;
+    margin-bottom: 6px;
+}
+.modal-post-date {
+    font-size: 10px;
+    color: #8e8e8e;
+    text-transform: uppercase;
+}
+
+/* Comment input at the very bottom */
+.modal-comment-input {
+    padding: 8px 16px;
+    border-top: 1px solid #363636;
+}
+.modal-comment-input form {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+.modal-comment-input i { font-size: 24px; color: #f5f5f5; }
+.modal-comment-input input {
+    flex: 1;
+    background: none;
+    border: none;
+    color: #f5f5f5;
+    font-size: 14px;
+    outline: none;
+}
+.modal-comment-input button {
+    background: none;
+    border: none;
+    color: #0095f6;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    opacity: 0.4;
+    transition: opacity 0.2s ease;
+}
+.modal-comment-input button:not(:disabled) {
+    opacity: 1;
+}
+
+.empty-state, .no-comments {
+    text-align: center;
+    padding: 40px 20px;
+    color: #8e8e8e;
+}
+{% endblock %}
+
+{% block content %}
+<div class="explore-container">
+    {% if posts %}
+    {% for post in posts %}
+    <div class="explore-item {% if forloop.counter|divisibleby:7 %}big{% endif %}"
+         role="button"
+         tabindex="0"
+         data-id="{{ post.id }}"
+         data-url="{{ post.contentUrl.url }}"
+         data-username="{{ post.userID.username }}"
+         data-user-avatar="{% if post.userID.avatar %}{{ post.userID.avatar.url }}{% else %}{% static 'images/default-avatar.jpg' %}{% endif %}"
+         data-caption="{{ post.caption|escapejs }}"
+         data-likes="{{ post.likes_count }}"
+         data-is-liked="{% if post|is_liked_by_user:request.user %}true{% else %}false{% endif %}"
+         data-user-id="{{ post.userID.id }}">
+
+        {% if post.contentUrl %}
+            {% if post.post_type == 'REELS' or post.contentUrl.url|lower|slice:"-4:" == '.mp4' or post.contentUrl.url|lower|slice:"-4:" == '.mov' %}
+                <video muted loop playsinline preload="metadata" aria-label="Video post by {{ post.userID.username }}">
+                    <source src="{{ post.contentUrl.url }}" type="video/mp4">
+                </video>
+            {% else %}
+                <img src="{{ post.contentUrl.url }}" alt="Post by {{ post.userID.username }}" loading="lazy">
+            {% endif %}
+        {% endif %}
+
+        {% if post.post_type == "REELS" %}
+        <div class="media-icon" aria-hidden="true"><i class="fas fa-play"></i></div>
+        {% endif %}
+
+        <div class="explore-overlay">
+            <div class="icon like-icon"><i class="fas fa-heart"></i><span>{{ post.likes_count }}</span></div>
+            <div class="icon comment-icon"><i class="fas fa-comment"></i><span>{{ post.comments_count|default:"0" }}</span></div>
+        </div>
+    </div>
+    {% endfor %}
+    {% else %}
+    <div class="empty-state">
+        <i class="fas fa-search"></i>
+        <h3>Explore is empty</h3>
+        <p>When posts are available, you'll see them here.</p>
+    </div>
+    {% endif %}
+</div>
+
+<div class="explore-modal" role="dialog" aria-modal="true" aria-label="Post details">
+    <div class="modal-content">
+        <div class="modal-media-container">
+            <div class="modal-media-wrapper"></div>
+        </div>
+        <div class="modal-sidebar">
+            <div class="modal-header">
+                <img src="" class="modal-user-avatar" alt="User avatar">
+                <a class="modal-profile-link" href="#">
+                    <span class="modal-username"></span>
+                </a>
+                <button class="modal-options-btn"><i class="fas fa-ellipsis-h"></i></button>
+            </div>
+            <div class="modal-scroll-content"></div>
+            <div class="modal-actions-bar">
+                <div class="modal-action-buttons">
+                    <button class="modal-action-btn modal-like-btn"><i class="far fa-heart"></i></button>
+                    <button class="modal-action-btn"><i class="far fa-comment"></i></button>
+                    <button class="modal-action-btn"><i class="far fa-paper-plane"></i></button>
+                </div>
+                <button class="modal-action-btn modal-save-btn"><i class="far fa-bookmark"></i></button>
+            </div>
+            <div class="modal-post-info">
+                <div class="modal-likes-count"></div>
+                <div class="modal-post-date"></div>
+            </div>
+            <div class="modal-comment-input">
+                <form method="POST">
+                    <i class="far fa-smile"></i>
+                    <input type="text" placeholder="Add a comment..." name="comment" aria-label="Add a comment">
+                    <button type="submit" disabled>Post</button>
+                </form>
+            </div>
+        </div>
+    </div>
+    <button class="modal-close" aria-label="Close modal">&times;</button>
+</div>
+
+{% endblock %}
+
+
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const modal = document.querySelector('.explore-modal');
+    const modalMediaWrapper = modal.querySelector('.modal-media-wrapper');
+    const modalUsername = modal.querySelector('.modal-username');
+    const modalUserAvatar = modal.querySelector('.modal-user-avatar');
+    const modalProfileLink = modal.querySelector('.modal-profile-link');
+    const modalScrollContent = modal.querySelector('.modal-scroll-content');
+    const modalLikeBtn = modal.querySelector('.modal-like-btn');
+    const modalLikesCount = modal.querySelector('.modal-likes-count');
+    const modalPostDate = modal.querySelector('.modal-post-date');
+    const modalCommentForm = modal.querySelector('.modal-comment-input form');
+    const modalCommentInput = modal.querySelector('.modal-comment-input input');
+    const modalCommentButton = modal.querySelector('.modal-comment-input button');
+    const modalClose = document.querySelector('.modal-close');
+
+    // Get CSRF token
+    function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+    const csrfToken = getCookie('csrftoken');
+
+    function sanitizeHTML(str) {
+        const temp = document.createElement('div');
+        temp.textContent = str;
+        return temp.innerHTML;
+    }
+
+    const postsData = {
+        {% for post in posts %}
+        '{{ post.id }}': {
+            comments: [
+                {% for comment in post.comments.all %}
+                {
+                    id: {{ comment.id }},
+                    username: '{{ comment.userID.username|escapejs }}',
+                    userAvatar: '{% if comment.userID.avatar %}{{ comment.userID.avatar.url }}{% else %}{% static 'images/default-avatar.jpg' %}{% endif %}',
+                    text: '{{ comment.comment|escapejs }}',
+                }{% if not forloop.last %},{% endif %}
+                {% endfor %}
+            ]
+        }{% if not forloop.last %},{% endif %}
+        {% endfor %}
+    };
+
+    function renderComments(postId, postUsername, postCaption) {
+        modalScrollContent.innerHTML = '';
+        if (postCaption) {
+            const captionContainer = document.createElement('div');
+            captionContainer.className = 'modal-caption-container';
+            captionContainer.innerHTML = `
+                <img src="${sanitizeHTML(modalUserAvatar.src)}" class="modal-comment-avatar" alt="${sanitizeHTML(postUsername)}'s avatar">
+                <div class="modal-caption-text">
+                    <strong>${sanitizeHTML(postUsername)}</strong>
+                    <span>${sanitizeHTML(postCaption)}</span>
+                </div>
+            `;
+            modalScrollContent.appendChild(captionContainer);
+        }
+
+        const comments = postsData[postId]?.comments || [];
+        if (comments.length === 0 && !postCaption) {
+            modalScrollContent.innerHTML = '<div class="no-comments">No comments yet.</div>';
+            return;
+        }
+
+        comments.forEach(comment => {
+            const commentItem = document.createElement('div');
+            commentItem.className = 'modal-comment';
+            commentItem.innerHTML = `
+                <img src="${sanitizeHTML(comment.userAvatar)}" class="modal-comment-avatar" alt="${sanitizeHTML(comment.username)}'s avatar">
+                <div class="modal-comment-content">
+                    <div class="modal-comment-body">
+                        <strong>${sanitizeHTML(comment.username)}</strong>
+                        <span>${sanitizeHTML(comment.text)}</span>
+                    </div>
+                    <div class="comment-meta">
+                        <span>5h</span>
+                        <button class="reply-btn">Reply</button>
+                    </div>
+                </div>
+                <button class="comment-like-btn"><i class="far fa-heart"></i></button>
+            `;
+            modalScrollContent.appendChild(commentItem);
+        });
+    }
+
+    async function createComment(postId, commentText) {
+        try {
+            const response = await fetch(`/api/comments/create/${postId}/`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'X-CSRFToken': csrfToken },
+                body: JSON.stringify({ content: commentText })
+            });
+            if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+
+            const data = await response.json();
+            if (data.status === 'success') {
+                const newComment = {
+                    id: data.comment.id,
+                    username: data.comment.username,
+                    userAvatar: data.comment.avatar,
+                    text: data.comment.content,
+                };
+                if (!postsData[postId]) postsData[postId] = { comments: [] };
+                postsData[postId].comments.push(newComment);
+
+                const item = document.querySelector(`.explore-item[data-id="${postId}"]`);
+                const caption = item ? item.dataset.caption : '';
+                const username = item ? item.dataset.username : '';
+                renderComments(postId, username, caption);
+
+                modalCommentInput.value = '';
+                modalCommentButton.disabled = true;
+
+                if (item) {
+                    const countSpan = item.querySelector('.comment-icon span');
+                    if (countSpan) countSpan.textContent = parseInt(countSpan.textContent) + 1;
+                }
+            } else {
+                throw new Error(data.message || 'Failed to create comment');
+            }
+        } catch (error) {
+            console.error('Error creating comment:', error);
+            alert('Failed to post comment. Please try again.');
+        }
+    }
+
+    async function toggleLike(postId) {
+        try {
+            const response = await fetch(`/like/${postId}/`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'X-CSRFToken': csrfToken, 'X-Requested-With': 'XMLHttpRequest' }
+            });
+            if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+            const data = await response.json();
+            if (data.success) {
+                const item = document.querySelector(`.explore-item[data-id="${postId}"]`);
+                if (item) {
+                    item.setAttribute('data-is-liked', data.liked);
+                    item.setAttribute('data-likes', data.likes_count);
+                    const likeCountSpan = item.querySelector('.like-icon span');
+                    if(likeCountSpan) likeCountSpan.textContent = data.likes_count;
+                }
+                modalLikeBtn.classList.toggle('active', data.liked);
+                modalLikesCount.textContent = `${data.likes_count} likes`;
+            } else {
+                throw new Error('Failed to toggle like');
+            }
+        } catch (error) {
+            console.error('Error toggling like:', error);
+        }
+    }
+
+    function openModal(item) {
+        const postId = sanitizeHTML(item.getAttribute('data-id'));
+        const mediaUrl = sanitizeHTML(item.getAttribute('data-url'));
+        const username = sanitizeHTML(item.getAttribute('data-username'));
+        const userId = sanitizeHTML(item.getAttribute('data-user-id'));
+        const userAvatar = sanitizeHTML(item.getAttribute('data-user-avatar'));
+        const caption = item.getAttribute('data-caption'); // No sanitize for this, it's escaped in template
+        const likes = sanitizeHTML(item.getAttribute('data-likes'));
+        const isLiked = item.getAttribute('data-is-liked') === 'true';
+
+        modalMediaWrapper.innerHTML = '';
+        if (mediaUrl.toLowerCase().endsWith('.mp4') || mediaUrl.toLowerCase().endsWith('.mov')) {
+            const video = document.createElement('video');
+            video.src = mediaUrl; video.controls = true; video.autoplay = true; video.loop = true;
+            video.className = 'modal-media';
+            modalMediaWrapper.appendChild(video);
+        } else {
+            const img = document.createElement('img');
+            img.src = mediaUrl;
+            img.className = 'modal-media';
+            modalMediaWrapper.appendChild(img);
+        }
+
+        modalUsername.textContent = username;
+        modalUserAvatar.src = userAvatar;
+        modalProfileLink.href = `/users/another_profile/${userId}/`;
+        modalLikesCount.textContent = `${likes} likes`;
+        modalPostDate.textContent = 'SEPTEMBER 9, 2025';
+        modalLikeBtn.classList.toggle('active', isLiked);
+        modal.dataset.postId = postId;
+
+        renderComments(postId, username, caption);
+
+        modal.classList.add('active');
+        document.body.style.overflow = 'hidden';
+    }
+
+    function closeModal() {
+        modal.classList.remove('active');
+        document.body.style.overflow = 'auto';
+        const video = modal.querySelector('video');
+        if (video) video.pause();
+        modalMediaWrapper.innerHTML = '';
+        modalScrollContent.innerHTML = '';
+        modalCommentInput.value = '';
+        modalCommentButton.disabled = true;
+    }
+
+    document.querySelectorAll('.explore-item').forEach(item => {
+        item.addEventListener('click', () => openModal(item));
+    });
+
+    modalCommentInput.addEventListener('input', () => {
+        modalCommentButton.disabled = !modalCommentInput.value.trim();
+    });
+
+    modalCommentForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const commentText = modalCommentInput.value.trim();
+        if (commentText) {
+            await createComment(modal.dataset.postId, commentText);
+        }
+    });
+
+    modalLikeBtn.addEventListener('click', () => {
+        const postId = modal.dataset.postId;
+        if (postId) toggleLike(postId);
+    });
+
+    modalClose.addEventListener('click', closeModal);
+    modal.addEventListener('click', (e) => { if (e.target === modal) closeModal(); });
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && modal.classList.contains('active')) closeModal();
+    });
+});
+</script>
+{% endblock %}
